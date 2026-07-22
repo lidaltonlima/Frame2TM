@@ -36,8 +36,7 @@ contains
         end if
     end subroutine open_data_file
 
-    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, &
-        materials, sections, nodes, bars, debug)
+    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, materials, sections, nodes, bars)
         ! PURPOSE: Get da data structure
 
         ! I/O vars
@@ -52,9 +51,6 @@ contains
         real(8), intent(out), allocatable :: nodes(:, :)
         integer, intent(out), allocatable :: bars(:, :)
 
-
-        logical, optional, intent(in) :: debug  ! If the debug output will be show
-
         ! File vars
         character(7), parameter :: data_folder = './data/'  ! Data file location
         character(4), parameter :: file_extension = '.dat'  ! Data file extension
@@ -66,18 +62,9 @@ contains
         ! Control vars
         integer :: id  ! Object ID
         character(20) :: line_label
-        logical :: is_debug
 
         ! Temp vars
         integer :: temp_int
-
-
-        ! Control the view of debug
-        if (present(debug)) then
-            is_debug = debug
-        else
-            is_debug = .false.
-        end if
 
 
         ! =========================================================================================
@@ -98,9 +85,9 @@ contains
                         nel = temp_int
                     case ('ndofn')
                         ndofn = temp_int
-                    case ('nmat')
+                    case ('ntm')
                         ntm = temp_int
-                    case ('nsec')
+                    case ('nts')
                         nts = temp_int
                 end select
             else if (read_stat == -1) then
@@ -124,6 +111,7 @@ contains
         call open_data_file('materials', file_unit)
 
         ! Read ************************************************************************************
+        read(file_unit, *) ! titles line
         do id = 1, ntm
             read(file_unit, *) materials(id, 1), materials(id, 2)
         end do
@@ -141,6 +129,7 @@ contains
         call open_data_file('sections', file_unit)
 
         ! Read ************************************************************************************
+        read(file_unit, *) ! titles line
         do id = 1, nts
             read(file_unit, *) sections(id, 1), sections(id, 2)
         end do
@@ -158,6 +147,7 @@ contains
         call open_data_file('nodes', file_unit)
 
         ! Read ************************************************************************************
+        read(file_unit, *) ! titles line
         do id = 1, nno
             read(file_unit, *) nodes(id, 1), nodes(id, 2)
         end do
@@ -175,6 +165,7 @@ contains
         call open_data_file('bars', file_unit)
 
         ! Read ************************************************************************************
+        read(file_unit, *) ! titles line
         do id = 1, nel
             read(file_unit, *) bars(id, 1), bars(id, 2), bars(id, 3), bars(id, 4)
         end do

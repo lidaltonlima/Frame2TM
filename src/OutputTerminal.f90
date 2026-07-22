@@ -54,7 +54,7 @@ contains
         ! =========================================================================================
 
         if (present(precision)) then
-            error stop 'Do not have precision in integer values'
+            error stop 'Can not have precision in integer values'
         else
             write(fmt_int, "('(I', I0, ')')") (column_size - 1)
         end if
