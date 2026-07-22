@@ -15,7 +15,7 @@ program main
     integer :: nts  ! Number of sections
 
     real(8), allocatable :: materials(:, :)
-    real(8), allocatable :: sections(:, :)
+    real(8), allocatable :: sections(:, :, :)
     real(8), allocatable :: nodes(:, :)
     integer, allocatable :: bars(:, :)
 
@@ -34,15 +34,12 @@ program main
     ! =============================================================================================
     call get_structure_data(nno, nel, ndofn, ntm, nts, theory, materials, sections, nodes, bars)
 
-    kl = get_kl(nel, ndofn, materials, sections, nodes, bars)
+    kl = get_kl(nel, ndofn, theory, materials, sections, nodes, bars)
 
     ! =============================================================================================
     ! Debug
     ! =============================================================================================
     if ( debug ) then
-        call print_structure_data(nno, nel, ndofn, ntm, nts, theory, &
-            materials, sections, nodes, bars)
-
         do id = 1, nel
             write(*, *) 'Element ID: ', id
             do i = 1, 2 * ndofn

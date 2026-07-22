@@ -47,7 +47,7 @@ contains
         integer, intent(out) :: nts  ! Number of sections
 
         real(8), intent(out), allocatable :: materials(:, :)
-        real(8), intent(out), allocatable :: sections(:, :)
+        real(8), intent(out), allocatable :: sections(:, :, :)
         real(8), intent(out), allocatable :: nodes(:, :)
         integer, intent(out), allocatable :: bars(:, :)
 
@@ -131,7 +131,7 @@ contains
         ! SECTIONS
         ! =========================================================================================
         ! Allocation ******************************************************************************
-        allocate(sections(nts, 2))
+        allocate(sections(nts, 2, 3))
 
         ! Open ************************************************************************************
         call open_data_file('sections', file_unit)
@@ -139,9 +139,8 @@ contains
         ! Read ************************************************************************************
         read(file_unit, *) ! titles line
         do id = 1, nts
-            read(file_unit, *) sections(id, 1), sections(id, 2)
+            read(file_unit, *) sections(id, 1, :), sections(id, 2, :)
         end do
-
         ! Close ***********************************************************************************
         close(file_unit)
 

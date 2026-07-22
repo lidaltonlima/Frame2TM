@@ -65,7 +65,16 @@
 
   // Code Spell Checker ***************************************************************************
   "cSpell.language": "en, pt-BR",
-  "cSpell.words": ["ndofn", "nmat", "nsec"],
+  "cSpell.words": [
+    "dgetrf",
+    "dgetri",
+    "ipiv",
+    "lwork",
+    "matmul",
+    "ndofn",
+    "nmat",
+    "nsec"
+  ],
 
   // Copilot **************************************************************************************
   "github.copilot.enable": {
