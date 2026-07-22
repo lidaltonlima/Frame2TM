@@ -316,6 +316,11 @@ Se necessário, abra o arquivo `.git/hooks/commit-msg` em um editor de texto e p
       <td>💾 <code>:floppy_disk:</code></td>
       <td><code>add</code></td>
     </tr>
+    <tr>
+      <td>Legibilidade</td>
+      <td>🎨 <code>:art:</code></td>
+      <td><code>ref</code></td>
+    </tr>
   </tbody>
 </table>
 

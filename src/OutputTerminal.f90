@@ -241,7 +241,7 @@ contains
         write(*, '(A)') '|'
     end subroutine print_titles
 
-    subroutine print_structure_data(nno, nel, ndofn, nmat, nsec, &
+    subroutine print_structure_data(nno, nel, ndofn, nmat, nsec, theory, &
         materials, sections, nodes, bars)
         ! PURPOSE: Get da data structure from file structure.dat
 
@@ -257,6 +257,8 @@ contains
         real(8), intent(in), allocatable :: nodes(:, :)
         integer, intent(in), allocatable :: bars(:, :)
 
+        character(2) :: theory ! Theory used
+
 
         ! Control vars
         integer :: i
@@ -265,7 +267,7 @@ contains
         ! =========================================================================================
         ! Output
         ! =========================================================================================
-        100 format(1A5, ':', 1I20)
+        100 format(1A6, ':', 1I10)
         ! Title *******************************************************************************
         do i = 1, 100
             write(*, '(A)', advance='no') '='
@@ -292,6 +294,7 @@ contains
         write(*, 100) 'ndofn', ndofn
         write(*, 100) 'nmat', nmat
         write(*, 100) 'nsec', nsec
+        write(*, '(1A6, ":", 1A10)') 'theory', theory
         print *
         print *
 

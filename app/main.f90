@@ -19,6 +19,8 @@ program main
     real(8), allocatable :: nodes(:, :)
     integer, allocatable :: bars(:, :)
 
+    character(2) :: theory ! Theory used
+
     ! Calculate data
     real(8), allocatable :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
 
@@ -30,7 +32,7 @@ program main
     ! =============================================================================================
     ! Calculation
     ! =============================================================================================
-    call get_structure_data(nno, nel, ndofn, ntm, nts, materials, sections, nodes, bars)
+    call get_structure_data(nno, nel, ndofn, ntm, nts, theory, materials, sections, nodes, bars)
 
     kl = get_kl(nel, ndofn, materials, sections, nodes, bars)
 
@@ -38,7 +40,7 @@ program main
     ! Debug
     ! =============================================================================================
     if ( debug ) then
-        call print_structure_data(nno, nel, ndofn, ntm, nts, materials, sections, nodes, bars)
+        call print_structure_data(nno, nel, ndofn, ntm, nts, theory, materials, sections, nodes, bars)
 
         do id = 1, nel
             write(*, *) 'Element ID: ', id

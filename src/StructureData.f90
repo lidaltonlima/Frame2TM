@@ -36,7 +36,7 @@ contains
         end if
     end subroutine open_data_file
 
-    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, materials, sections, nodes, bars)
+    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, theory, materials, sections, nodes, bars)
         ! PURPOSE: Get da data structure
 
         ! I/O vars
@@ -50,6 +50,8 @@ contains
         real(8), intent(out), allocatable :: sections(:, :)
         real(8), intent(out), allocatable :: nodes(:, :)
         integer, intent(out), allocatable :: bars(:, :)
+
+        character(2), intent(out) :: theory ! Theory used
 
         ! File vars
         character(7), parameter :: data_folder = './data/'  ! Data file location
@@ -89,6 +91,12 @@ contains
                         ntm = temp_int
                     case ('nts')
                         nts = temp_int
+                    case ('theory')
+                        if (temp_int == 0) then
+                            theory = 'OB'
+                        else
+                            theory = 'TM'
+                        end if
                 end select
             else if (read_stat == -1) then
                 exit CONTROLS
