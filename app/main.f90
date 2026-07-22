@@ -40,7 +40,8 @@ program main
     ! Debug
     ! =============================================================================================
     if ( debug ) then
-        call print_structure_data(nno, nel, ndofn, ntm, nts, theory, materials, sections, nodes, bars)
+        call print_structure_data(nno, nel, ndofn, ntm, nts, theory, &
+            materials, sections, nodes, bars)
 
         do id = 1, nel
             write(*, *) 'Element ID: ', id

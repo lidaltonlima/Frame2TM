@@ -3,4 +3,4 @@ nel     1   ! Number of elements
 ntm     1   ! Number of materials
 nts     1   ! Number of sections
 ndofn   3   ! Number of free degrees
-theory  0   ! Theory of Euler-Bernoulli or Timoshenko
+theory  0   ! Theory of (0) Euler-Bernoulli or (1) Timoshenko

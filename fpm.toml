@@ -5,3 +5,7 @@ author = "lidaltonlima"
 maintainer = "lidaltonlima@gmail.com"
 copyright = "Copyright 2026, lidaltonlima"
 
+[fortran]
+source-form = "default"
+implicit-typing = true
+implicit-external = true
