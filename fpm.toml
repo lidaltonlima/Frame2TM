@@ -9,3 +9,6 @@ copyright = "Copyright 2026, lidaltonlima"
 source-form = "default"
 implicit-typing = true
 implicit-external = true
+
+[[executable]]
+name = "main"

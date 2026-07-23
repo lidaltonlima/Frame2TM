@@ -68,6 +68,7 @@
   "cSpell.words": [
     "dgetrf",
     "dgetri",
+    "inout",
     "ipiv",
     "itydisp",
     "lwork",

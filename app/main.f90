@@ -1,6 +1,6 @@
 program main
     use StructureData, only: get_structure_data
-    use Stiffness, only: get_kl
+    use Stiffness, only: get_kl, get_K
     use Rotation, only: getRotMat
     implicit none
 
@@ -13,17 +13,20 @@ program main
     integer :: ndofn  ! Number of degrees of freedom per node
     integer :: ntm  ! Number of materials
     integer :: nts  ! Number of sections
-    integer :: nccdesl  ! Number of boundaries condition
+    character(2) :: theory ! Theory used
 
     real(8), allocatable :: materials(:, :)
     real(8), allocatable :: sections(:, :, :)
     real(8), allocatable :: nodes(:, :)
     integer, allocatable :: bars(:, :)
+
+    integer :: nccdesl  ! Number of boundaries condition
     integer, allocatable :: nnr(:)  ! index of bound node
     logical, allocatable :: itydisp(:, :) ! type of bound
     real(8), allocatable :: disp(:, :)  ! displacement value
 
-    character(2) :: theory ! Theory used
+    real(8), allocatable :: K(:, :)  ! Global stiffness global
+
 
     ! Calculate data
     real(8), allocatable :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
@@ -42,10 +45,12 @@ program main
     kl = get_kl(nel, ndofn, theory, materials, sections, nodes, bars)
     rot = getRotMat(nel, ndofn, nodes, bars)
 
+    call get_K(nno, nel, ndofn, bars, kl, rot, K)
+
     ! =============================================================================================
     ! Debug
     ! =============================================================================================
-    call show_debug()
+    ! call show_debug()
 
 contains
     subroutine show_debug()
@@ -188,6 +193,18 @@ contains
                 end do
                 print *
             end do
+        end do
+        print *
+        print *
+
+        ! Global Matrix ***************************************************************************
+        write(*, '(A9)', advance='no') 'Glob. Mat'
+        do i = 1, 91
+            write(*, '(A1)', advance='no') '/'
+        end do
+        print *
+        do i = 1, nno*ndofn
+            write(*, '(*(ES15.4))') K(i, :)
         end do
     end subroutine show_debug
 end program main
