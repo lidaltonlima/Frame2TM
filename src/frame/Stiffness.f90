@@ -7,10 +7,13 @@ module Stiffness
     public :: get_kl
 
     real(8) :: E  ! Elasticity module
+    real(8) :: G
     real(8) :: A(3)  ! Area
+    real(8), parameter :: As(3) = [5d-2, 5d-2, 5d-2]
     real(8) :: L  ! Length
     real(8) :: I(3)  ! Inertia
     character(2) :: theory_g
+
 contains
     function get_kl(nel, ndofn, theory, materials, sections, nodes, bars) result(kl)
         ! Calculate the stiffness matrix local for all elements
@@ -57,6 +60,7 @@ contains
         AFF = 0d0
         do id = 1, nel
             E = materials(bars(id, 1), 1)
+            G = E / (2 * (1 + 0.3))
             A = sections(bars(id, 2), 1, :)
             I = sections(bars(id, 2), 2, :)
 
@@ -153,7 +157,7 @@ contains
         real(8), intent(in) :: x
         real(8) :: y
 
-        y = E * LagPol([0d0, L/2, L], A, x)
+        y = G * LagPol([0d0, L/2, L], As, x)
     end function ks
 
     pure function a11(x) result(y)
@@ -167,11 +171,7 @@ contains
         real(8), intent(in) :: x
         real(8) :: y
 
-        if (theory_g == 'TM') then
-            y = x**2 / kb(x) + 1 / ks(x)
-        else if (theory_g == 'OB') then
-            y = x**2 / kb(x)
-        end if
+        y = x**2 / kb(x) + merge(1 / ks(x), 0d0, theory_g == 'TM')
     end function a22
 
     pure function a23(x) result(y)
@@ -206,7 +206,7 @@ contains
         real(8), intent(in) :: x
         real(8) :: y
 
-        y = (L - x)**2 / kb(x)
+        y = (L - x)**2 / kb(x) + merge(1 / ks(x), 0d0, theory_g == 'TM')
     end function a55
 
     pure function a56(x) result(y)
