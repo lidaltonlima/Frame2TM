@@ -13,11 +13,15 @@ program main
     integer :: ndofn  ! Number of degrees of freedom per node
     integer :: ntm  ! Number of materials
     integer :: nts  ! Number of sections
+    integer :: nccdesl  ! Number of boundaries condition
 
     real(8), allocatable :: materials(:, :)
     real(8), allocatable :: sections(:, :, :)
     real(8), allocatable :: nodes(:, :)
     integer, allocatable :: bars(:, :)
+    integer, allocatable :: nnr(:)  ! index of bound node
+    logical, allocatable :: itydisp(:, :) ! type of bound
+    real(8), allocatable :: disp(:, :)  ! displacement value
 
     character(2) :: theory ! Theory used
 
@@ -32,7 +36,8 @@ program main
     ! =============================================================================================
     ! Calculation
     ! =============================================================================================
-    call get_structure_data(nno, nel, ndofn, ntm, nts, theory, materials, sections, nodes, bars)
+    call get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, theory, itydisp, disp, &
+        materials, sections, nodes, bars)
 
     kl = get_kl(nel, ndofn, theory, materials, sections, nodes, bars)
     rot = getRotMat(nel, ndofn, nodes, bars)
@@ -71,6 +76,7 @@ contains
         write(*, 100) 'ndofn', ndofn
         write(*, 100) 'nmat', ntm
         write(*, 100) 'nsec', nts
+        write(*, 100) 'nccdesl', nccdesl
         write(*, '(1A6, ":", 1A10)') 'theory', theory
         print *
         print *
@@ -127,6 +133,24 @@ contains
         write(*, '(1A4, 4A15)') 'id', 'Material', 'Section', 'Start Node', 'End Node'
         do i = 1, nel
             write(*, '(1I4, 4I15)') i, bars(i, :)
+        end do
+        print *
+        print *
+
+        ! Boundaries ******************************************************************************
+        write(*, '(A9)', advance='no') 'Bounds   '
+        do i = 1, 91
+            write(*, '(A1)', advance='no') '/'
+        end do
+        print *
+
+        write(*, '(1A4, *(A7))', advance='no') 'Id', 'node', 'Dx', 'Dy', 'Rz'
+        write(*, '(*(A20))') 'Dx', 'Dy', 'Rz'
+        do i = 1, nccdesl
+            write(*, '(1I4, 1I7, 1L7)', advance='no') i, nnr(i)
+            write(*, '(*(L7))', advance='no') itydisp(i, :)
+            write(*, '(*(F20.4))', advance='no') disp(i, :)
+            print *
         end do
         print *
         print *

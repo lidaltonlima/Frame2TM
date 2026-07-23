@@ -69,8 +69,10 @@
     "dgetrf",
     "dgetri",
     "ipiv",
+    "itydisp",
     "lwork",
     "matmul",
+    "nccdesl",
     "ndofn",
     "nmat",
     "nsec"

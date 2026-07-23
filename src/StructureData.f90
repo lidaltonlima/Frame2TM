@@ -35,7 +35,8 @@ contains
         end if
     end subroutine open_data_file
 
-    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, theory, materials, sections, nodes, bars)
+    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, theory, itydisp, disp, &
+        materials, sections, nodes, bars)
         ! PURPOSE: Get da data structure
 
         ! I/O vars
@@ -44,11 +45,15 @@ contains
         integer, intent(out) :: ndofn  ! Number of degrees of freedom per node
         integer, intent(out) :: ntm  ! Number of materials
         integer, intent(out) :: nts  ! Number of sections
+        integer, intent(out) :: nccdesl  ! Number of boundaries condition
 
         real(8), intent(out), allocatable :: materials(:, :)
         real(8), intent(out), allocatable :: sections(:, :, :)
         real(8), intent(out), allocatable :: nodes(:, :)
         integer, intent(out), allocatable :: bars(:, :)
+        integer, allocatable :: nnr(:)  ! index of bound node
+        logical, allocatable :: itydisp(:, :) ! type of bound
+        real(8), intent(out), allocatable :: disp(:, :)  ! displacement value
 
         character(2), intent(out) :: theory ! Theory used
 
@@ -90,6 +95,8 @@ contains
                         ntm = temp_int
                     case ('nts')
                         nts = temp_int
+                    case ('nccdesl')
+                        nccdesl = temp_int
                     case ('theory')
                         if (temp_int == 0) then
                             theory = 'OB'
@@ -174,6 +181,26 @@ contains
         read(file_unit, *) ! titles line
         do id = 1, nel
             read(file_unit, *) bars(id, 1), bars(id, 2), bars(id, 3), bars(id, 4)
+        end do
+
+        ! Close ***********************************************************************************
+        close(file_unit)
+
+        ! =========================================================================================
+        ! Bound
+        ! =========================================================================================
+        ! Allocation ******************************************************************************
+        allocate(nnr(nccdesl))
+        allocate(itydisp(nccdesl, ndofn))
+        allocate(disp(nccdesl, ndofn))
+
+        ! Open ************************************************************************************
+        call open_data_file('boundaries', file_unit)
+
+        ! Read ************************************************************************************
+        read(file_unit, *) ! titles line
+        do id = 1, nccdesl
+            read(file_unit, *) nnr(id), itydisp(id, :), disp(id, :)
         end do
 
         ! Close ***********************************************************************************
