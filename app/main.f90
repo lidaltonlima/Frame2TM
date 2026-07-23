@@ -1,6 +1,7 @@
 program main
     use StructureData, only: get_structure_data
     use Stiffness, only: get_kl
+    use Rotation, only: getRotMat
     implicit none
 
     ! =============================================================================================
@@ -22,10 +23,11 @@ program main
 
     ! Calculate data
     real(8), allocatable :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
+    real(8), allocatable :: rot(:, :, :)  ! Matrix of rotation
 
     ! Controls
     integer :: i, j  ! Indexes
-    integer :: id   ! Index id
+    integer :: id  ! Index id
 
     ! =============================================================================================
     ! Calculation
@@ -33,6 +35,7 @@ program main
     call get_structure_data(nno, nel, ndofn, ntm, nts, theory, materials, sections, nodes, bars)
 
     kl = get_kl(nel, ndofn, theory, materials, sections, nodes, bars)
+    rot = getRotMat(nel, ndofn, nodes, bars)
 
     ! =============================================================================================
     ! Debug
@@ -74,7 +77,6 @@ contains
 
         ! Materials ***************************************************************************
         write(*, '(A9)', advance='no') 'MATERIALS '
-
         do i = 1, 91
             write(*, '(A1)', advance='no') '/'
         end do
@@ -89,7 +91,6 @@ contains
 
         ! Sections ****************************************************************************
         write(*, '(A9)', advance='no') 'SECTIONS '
-
         do i = 1, 91
             write(*, '(A1)', advance='no') '/'
         end do
@@ -103,8 +104,7 @@ contains
         print *
 
         ! Nodes *******************************************************************************
-        write(*, '(A9)', advance='no') 'NODES '
-
+        write(*, '(A9)', advance='no') 'NODES    '
         do i = 1, 91
             write(*, '(A1)', advance='no') '/'
         end do
@@ -118,8 +118,7 @@ contains
         print *
 
         ! Bars ********************************************************************************
-        write(*, '(A9)', advance='no') 'BARS '
-
+        write(*, '(A9)', advance='no') 'BARS     '
         do i = 1, 91
             write(*, '(A1)', advance='no') '/'
         end do
@@ -133,11 +132,35 @@ contains
         print *
 
         ! Local Stiffness Matrix ******************************************************************
+        write(*, '(A9)', advance='no') 'Stiffness '
+        do i = 1, 91
+            write(*, '(A1)', advance='no') '/'
+        end do
+        print *
+
         do id = 1, nel
             write(*, '(1A13, 1I4)') 'Element ID: ', id
             do i = 1, 2 * ndofn
                 do j = 1, 2 * ndofn
                     write(*, '(ES15.4)', advance='no') kl(id, i, j)
+                end do
+                print *
+            end do
+        end do
+        print *
+        print *
+
+        ! Rot Matrix ******************************************************************************
+        write(*, '(A9)', advance='no') 'Rot Mat  '
+        do i = 1, 91
+            write(*, '(A1)', advance='no') '/'
+        end do
+        print *
+        do id = 1, nel
+            write(*, '(1A13, 1I4)') 'Element ID: ', id
+            do i = 1, 2 * ndofn
+                do j = 1, 2 * ndofn
+                    write(*, '(F10.4)', advance='no') rot(id, i, j)
                 end do
                 print *
             end do
