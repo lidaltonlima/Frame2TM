@@ -1,5 +1,4 @@
 module StructureData
-    use OutputTerminal, only: print_table, print_structure_data
     implicit none
 
     private
