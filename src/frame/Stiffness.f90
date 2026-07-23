@@ -60,7 +60,7 @@ contains
         AFF = 0d0
         do id = 1, nel
             E = materials(bars(id, 1), 1)
-            G = E / (2 * (1 + 0.3))
+            G = E / (2 * (1 + materials(bars(id, 1), 2)))
             A = sections(bars(id, 2), 1, :)
             I = sections(bars(id, 2), 2, :)
 
