@@ -9,7 +9,7 @@ module Stiffness
     real(8) :: E  ! Elasticity module
     real(8) :: G
     real(8) :: A(3)  ! Area
-    real(8), parameter :: As(3) = [5d-2, 5d-2, 5d-2]
+    real(8) :: As(3)
     real(8) :: L  ! Length
     real(8) :: I(3)  ! Inertia
     character(2) :: theory_g
@@ -62,7 +62,8 @@ contains
             E = materials(bars(id, 1), 1)
             G = E / (2 * (1 + materials(bars(id, 1), 2)))
             A = sections(bars(id, 2), 1, :)
-            I = sections(bars(id, 2), 2, :)
+            As = sections(bars(id, 2), 2, :)
+            I = sections(bars(id, 2), 3, :)
 
             dx = nodes(bars(id, 4), 1) - nodes(bars(id, 3), 1)
             dy = nodes(bars(id, 4), 2) - nodes(bars(id, 3), 2)
@@ -125,6 +126,11 @@ contains
         do element = 1, nel
             call add_k(element, ndofn, kl, rot, bars, K)
         end do
+
+        do element = 1, nno*ndofn
+            write(*, '(*(ES10.2))') K(element, :)
+        end do
+
     end subroutine
 
     subroutine add_k(id, ndofn, kl, rot, bars, K)
