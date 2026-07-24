@@ -70,13 +70,12 @@ contains
         write(*, *)
 
         ! Controls ********************************************************************************
-        write(*, '(A9)', advance='no') 'CONTROLS '
+        write(*, '(A9)', advance='no') 'Controls '
 
         do i = 1, 91
             write(*, '(A1)', advance='no') '/'
         end do
         print *
-
 
         write(*, 100) 'nno', nno
         write(*, 100) 'nel', nel
@@ -88,9 +87,9 @@ contains
         print *
         print *
 
-        ! Materials ***************************************************************************
-        write(*, '(A9)', advance='no') 'MATERIALS '
-        do i = 1, 91
+        ! Materials *******************************************************************************
+        write(*, '(A10)', advance='no') 'Materials '
+        do i = 1, 90
             write(*, '(A1)', advance='no') '/'
         end do
         print *
@@ -102,7 +101,7 @@ contains
         print *
         print *
 
-        ! Sections ****************************************************************************
+        ! Sections ********************************************************************************
         write(*, '(A9)', advance='no') 'SECTIONS '
         do i = 1, 91
             write(*, '(A1)', advance='no') '/'
@@ -117,9 +116,9 @@ contains
         print *
         print *
 
-        ! Nodes *******************************************************************************
-        write(*, '(A9)', advance='no') 'NODES    '
-        do i = 1, 91
+        ! Nodes ***********************************************************************************
+        write(*, '(A6)', advance='no') 'NODES '
+        do i = 1, 94
             write(*, '(A1)', advance='no') '/'
         end do
         print *
@@ -131,9 +130,9 @@ contains
         print *
         print *
 
-        ! Bars ********************************************************************************
-        write(*, '(A9)', advance='no') 'BARS     '
-        do i = 1, 91
+        ! Bars ************************************************************************************
+        write(*, '(A5)', advance='no') 'BARS '
+        do i = 1, 95
             write(*, '(A1)', advance='no') '/'
         end do
         print *
@@ -146,8 +145,8 @@ contains
         print *
 
         ! Boundaries ******************************************************************************
-        write(*, '(A9)', advance='no') 'Bounds   '
-        do i = 1, 91
+        write(*, '(A7)', advance='no') 'Bounds '
+        do i = 1, 93
             write(*, '(A1)', advance='no') '/'
         end do
         print *
@@ -164,8 +163,8 @@ contains
         print *
 
         ! Local Stiffness Matrix ******************************************************************
-        write(*, '(A9)', advance='no') 'Stiffness '
-        do i = 1, 91
+        write(*, '(A17)', advance='no') 'Stiffness Matrix '
+        do i = 1, 83
             write(*, '(A1)', advance='no') '/'
         end do
         print *
@@ -187,8 +186,8 @@ contains
         print *
 
         ! Rot Matrix ******************************************************************************
-        write(*, '(A9)', advance='no') 'Rot Mat  '
-        do i = 1, 91
+        write(*, '(A16)', advance='no') 'Rotation Matrix '
+        do i = 1, 84
             write(*, '(A1)', advance='no') '/'
         end do
         print *
@@ -209,8 +208,8 @@ contains
         print *
 
         ! Global Matrix ***************************************************************************
-        write(*, '(A9)', advance='no') 'Glob. Mat'
-        do i = 1, 91
+        write(*, '(A14)', advance='no') 'Global Matrix '
+        do i = 1, 87
             write(*, '(A1)', advance='no') '/'
         end do
         print *
