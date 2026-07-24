@@ -21,7 +21,6 @@ contains
 
         ! Auxiliaries *****************************************************************************
         integer :: id
-        real(8) :: aux_vec(3)
         real(8) :: e_vec(3)
         real(8) :: n_vec(3)
         real(8) :: x_vec(3)
@@ -37,21 +36,22 @@ contains
         rot = 0d0
         do id = 1, nel
             e_vec = 0d0
-            e_vec = nodes(bars(id, 4), :) - nodes(bars(id, 3), :)
+            e_vec = [ &
+                nodes(bars(id, 4), 1) - nodes(bars(id, 3), 1), &
+                nodes(bars(id, 4), 2) - nodes(bars(id, 3), 2), &
+                0d0]
 
             if (e_vec(1) > 0) then
-                aux_vec = [e_vec(1), e_vec(2) + 1, 0d0]
+                n_vec = [e_vec(1), e_vec(2) + 1, 0d0]
             else if (e_vec(1) < 0) then
-                aux_vec = [e_vec(1), e_vec(2) - 1, 0d0]
+                n_vec = [e_vec(1), e_vec(2) - 1, 0d0]
             else
                 if (e_vec(2) > 0) then
-                    aux_vec = [e_vec(1) - 1, e_vec(2), 0d0]
+                    n_vec = [e_vec(1) - 1, e_vec(2), 0d0]
                 else
-                    aux_vec = [e_vec(1) + 1, e_vec(2), 0d0]
+                    n_vec = [e_vec(1) + 1, e_vec(2), 0d0]
                 end if
             end if
-
-            n_vec = aux_vec - nodes(bars(id, 3), :)
 
             x_vec = e_vec / norm2(e_vec)
 

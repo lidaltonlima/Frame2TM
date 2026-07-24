@@ -50,10 +50,12 @@ program main
     ! =============================================================================================
     ! Debug
     ! =============================================================================================
-    ! call show_debug()
+    call show_debug(1.0d-50)
 
 contains
-    subroutine show_debug()
+    subroutine show_debug(tolerance)
+        real(8), intent(in) :: tolerance
+
         100 format(1A6, ':', 1I10)
         ! Title *******************************************************************************
         do i = 1, 100
@@ -107,9 +109,10 @@ contains
         end do
         print *
 
-        write(*, '(1A4, T9, 1A5, T52, 1A10)') 'Id','Area', 'Inertia'
+        write(*, '(1A4, T7, 1A4, T37, 1A10, T64, 1A10)') 'Id','Area', 'Shear Area', 'Inertia'
         do i = 1, nts
-            write(*, '(1I4, 3ES15.4, 3ES15.4)') i, sections(i, 1, :), sections(i, 2, :)
+            write(*, '(1I4, 9ES10.2)') &
+                i, sections(i, 1, :), sections(i, 2, :),sections(i, 3, :)
         end do
         print *
         print *
@@ -171,7 +174,11 @@ contains
             write(*, '(1A13, 1I4)') 'Element ID: ', id
             do i = 1, 2 * ndofn
                 do j = 1, 2 * ndofn
-                    write(*, '(ES15.4)', advance='no') kl(id, i, j)
+                    if (abs(kl(id, i, j)) < tolerance) then
+                        write(*, '(ES15.4)', advance='no') 0.0d0
+                    else
+                        write(*, '(ES15.4)', advance='no') kl(id, i, j)
+                    end if
                 end do
                 print *
             end do
@@ -189,7 +196,11 @@ contains
             write(*, '(1A13, 1I4)') 'Element ID: ', id
             do i = 1, 2 * ndofn
                 do j = 1, 2 * ndofn
-                    write(*, '(F10.4)', advance='no') rot(id, i, j)
+                    if (abs(rot(id, i, j)) < tolerance) then
+                        write(*, '(F10.4)', advance='no') 0.0d0
+                    else
+                        write(*, '(F10.4)', advance='no') rot(id, i, j)
+                    end if
                 end do
                 print *
             end do
@@ -204,7 +215,14 @@ contains
         end do
         print *
         do i = 1, nno*ndofn
-            write(*, '(*(ES15.4))') K(i, :)
+            do j = 1, nno*ndofn
+                if (abs(K(i, j)) < tolerance) then
+                    write(*, '(ES10.2)', advance='no') 0.0d0
+                else
+                    write(*, '(ES10.2)', advance='no') K(i, j)
+                end if
+            end do
+            print *
         end do
     end subroutine show_debug
 end program main

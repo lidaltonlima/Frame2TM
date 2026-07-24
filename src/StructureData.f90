@@ -137,7 +137,7 @@ contains
         ! SECTIONS
         ! =========================================================================================
         ! Allocation ******************************************************************************
-        allocate(sections(nts, 2, 3))
+        allocate(sections(nts, 3, 3))
 
         ! Open ************************************************************************************
         call open_data_file('sections', file_unit)
@@ -145,7 +145,7 @@ contains
         ! Read ************************************************************************************
         read(file_unit, *) ! titles line
         do id = 1, nts
-            read(file_unit, *) sections(id, 1, :), sections(id, 2, :)
+            read(file_unit, *) sections(id, 1, :), sections(id, 2, :), sections(id, 3, :)
         end do
         ! Close ***********************************************************************************
         close(file_unit)

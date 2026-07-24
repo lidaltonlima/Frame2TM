@@ -126,11 +126,6 @@ contains
         do element = 1, nel
             call add_k(element, ndofn, kl, rot, bars, K)
         end do
-
-        do element = 1, nno*ndofn
-            write(*, '(*(ES10.2))') K(element, :)
-        end do
-
     end subroutine
 
     subroutine add_k(id, ndofn, kl, rot, bars, K)
