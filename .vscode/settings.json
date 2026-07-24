@@ -69,6 +69,7 @@
     "ccno",
     "dgetrf",
     "dgetri",
+    "dposv",
     "inout",
     "ipiv",
     "itydisp",

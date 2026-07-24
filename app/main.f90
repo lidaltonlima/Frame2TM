@@ -33,6 +33,7 @@ program main
     real(8), allocatable :: F(:)  ! Vector of loads
 
     real(8), allocatable :: K(:, :)  ! Global stiffness global
+    real(8), allocatable :: D(:)  ! Displacements
 
 
     ! Calculate data
@@ -42,6 +43,9 @@ program main
     ! Controls
     integer :: i, j  ! Indexes
     integer :: id  ! Index id
+
+    ! Auxiliaries
+    real(8), allocatable :: K_aux(:, :)
 
     ! =============================================================================================
     ! Calculation
@@ -56,12 +60,32 @@ program main
     call add_boundaries(nccdesl, nnr, itydisp, disp, ndofn, K)
     call get_F(nno, ndofn, nnc, nnoc, ccno, F)
 
+    allocate(K_aux(nno*ndofn, nno*ndofn))
+    allocate(D(nno*ndofn))
+
+    K_aux = K
+    D = F
+
+    call solver()
+
+
+
     ! =============================================================================================
     ! Debug
     ! =============================================================================================
     call show_debug(1.0d-50)
 
 contains
+    subroutine solver
+        ! Auxiliaries
+        integer :: info  ! status of operation
+
+        ! External
+        external :: dposv
+
+        call dposv('U', nno*ndofn, 1, K_aux, nno*ndofn, D, nno*ndofn, info)
+    end subroutine solver
+
     subroutine show_debug(tolerance)
         real(8), intent(in) :: tolerance
 
@@ -262,6 +286,23 @@ contains
                 write(*, '(ES10.2)', advance='no') 0.0d0
             else
                 write(*, '(ES10.2)', advance='no') F(i)
+            end if
+        end do
+        print *
+        print *
+        print *
+
+        ! Displacements ***************************************************************************
+        write(*, '(A14)', advance='no') 'Displacements '
+        do i = 1, 86
+            write(*, '(A1)', advance='no') '/'
+        end do
+        print *
+        do i = 1, nno*ndofn
+            if (abs(D(i)) < tolerance) then
+                write(*, '(ES10.2)', advance='no') 0.0d0
+            else
+                write(*, '(ES10.2)', advance='no') D(i)
             end if
         end do
         print *
