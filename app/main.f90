@@ -300,9 +300,9 @@ contains
         print *
         do i = 1, nno*ndofn
             if (abs(D(i)) < tolerance) then
-                write(*, '(ES10.2)', advance='no') 0.0d0
+                write(*, '(ES15.6)', advance='no') 0.0d0
             else
-                write(*, '(ES10.2)', advance='no') D(i)
+                write(*, '(ES15.6)', advance='no') D(i)
             end if
         end do
         print *

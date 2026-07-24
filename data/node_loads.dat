@@ -1,2 +1,2 @@
-Node    Fx      Fy      Mz
-2       10      15      32
+Node    Fx          Fy              Mz
+2       150000      -100000         50000
