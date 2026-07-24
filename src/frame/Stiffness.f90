@@ -141,32 +141,23 @@ contains
 
         ! Auxiliaries
         real(8), allocatable :: kg(:, :)  ! Stiffness matrix
-        integer :: index
         integer :: si, ei  ! indices position of start node
         integer :: sj, ej  ! indices position of start node
 
         kg = kl(id, :, :)
         kg = matmul(matmul(transpose(rot(id, :, :)), kg), rot(id, :, :))
 
-        si = (ndofn * (bars(id, 3) - 1)) + 1
-        ei = si + ndofn - 1
+        si = (ndofn * (bars(id, 3) - 1)) + 1  ! Start index of initial node
+        ei = si + ndofn - 1  ! End index of initial node
 
-        sj = (ndofn * (bars(id, 4) - 1)) + 1
-        ej = sj + ndofn - 1
+        sj = (ndofn * (bars(id, 4) - 1)) + 1  ! Start index of end node
+        ej = sj + ndofn - 1  ! End index of end node
+
 
         K(si:ei, si:ei) = K(si:ei, si:ei) + kg(:3, :3)  ! k_ii
         K(si:ei, sj:ej) = K(si:ei, sj:ej) + kg(:3, 4:)  ! k_ij
-        K(sj:ej, sj:ej) = K(sj:ej, sj:ej) + kg(4:, 4:)  ! k_jj
         K(sj:ej, si:ei) = K(sj:ej, si:ei) + kg(4:, :3)  ! k_ji
-
-        do index = 1, 6
-            write(*, '(*(ES10.2))') kg(index, :)
-        end do
-        print *
-        do index = 1, 6
-            write(*, '(*(ES10.2))') K(index, :)
-        end do
-
+        K(sj:ej, sj:ej) = K(sj:ej, sj:ej) + kg(4:, 4:)  ! k_jj
     end subroutine add_k
 
     function inv(mat) result(mat_inv)
