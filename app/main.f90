@@ -2,6 +2,7 @@ program main
     use StructureData, only: get_structure_data
     use Stiffness, only: get_kl, get_K
     use Rotation, only: getRotMat
+    use Boundaries, only: add_boundaries
     implicit none
 
     ! =============================================================================================
@@ -46,6 +47,8 @@ program main
     rot = getRotMat(nel, ndofn, nodes, bars)
 
     call get_K(nno, nel, ndofn, bars, kl, rot, K)
+
+    call add_boundaries(nccdesl, nnr, itydisp, disp, ndofn, K)
 
     ! =============================================================================================
     ! Debug
