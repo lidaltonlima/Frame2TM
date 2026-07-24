@@ -35,7 +35,8 @@ contains
         end if
     end subroutine open_data_file
 
-    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, theory, itydisp, disp, &
+    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, theory, &
+        itydisp, disp, nnoc, ccno, &
         materials, sections, nodes, bars)
         ! PURPOSE: Get da data structure
 
@@ -46,6 +47,7 @@ contains
         integer, intent(out) :: ntm  ! Number of materials
         integer, intent(out) :: nts  ! Number of sections
         integer, intent(out) :: nccdesl  ! Number of boundaries condition
+        integer, intent(out) :: nnc  ! Number of nodes with point load
 
         real(8), intent(out), allocatable :: materials(:, :)
         real(8), intent(out), allocatable :: sections(:, :, :)
@@ -54,6 +56,9 @@ contains
         integer, allocatable :: nnr(:)  ! index of bound node
         logical, allocatable :: itydisp(:, :) ! type of bound
         real(8), intent(out), allocatable :: disp(:, :)  ! displacement value
+
+        integer, allocatable :: nnoc(:)  ! index of node with load
+        real(8), allocatable :: ccno(:, :)  ! value of point load in node
 
         character(2), intent(out) :: theory ! Theory used
 
@@ -97,6 +102,8 @@ contains
                         nts = temp_int
                     case ('nccdesl')
                         nccdesl = temp_int
+                    case ('nnc')
+                        nnc = temp_int
                     case ('theory')
                         if (temp_int == 0) then
                             theory = 'OB'
@@ -201,6 +208,22 @@ contains
         read(file_unit, *) ! titles line
         do id = 1, nccdesl
             read(file_unit, *) nnr(id), itydisp(id, :), disp(id, :)
+        end do
+
+        ! =========================================================================================
+        ! Loads
+        ! =========================================================================================
+        ! Allocation ******************************************************************************
+        allocate(nnoc(nnc))
+        allocate(ccno(nnc, ndofn))
+
+        ! Open ************************************************************************************
+        call open_data_file('node_loads', file_unit)
+
+        ! Read ************************************************************************************
+        read(file_unit, *) ! titles line
+        do id = 1, nnc
+            read(file_unit, *) nnoc(id), ccno(id, :)
         end do
 
         ! Close ***********************************************************************************

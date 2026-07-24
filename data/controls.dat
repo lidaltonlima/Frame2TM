@@ -4,4 +4,5 @@ ntm     1   ! Number of materials
 nts     1   ! Number of sections
 ndofn   3   ! Number of free degrees
 nccdesl 2   ! Number of nodes with boundaries conditions
+nnc     1   ! Number of nodes with point loads
 theory  1   ! Theory of (0) Euler-Bernoulli or (1) Timoshenko

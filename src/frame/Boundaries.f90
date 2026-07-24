@@ -31,7 +31,6 @@ contains
                     K(i_dir, i_dir) = 1d0
                 end if
             end do
-            print *
         end do
     end subroutine add_boundaries
 end module Boundaries

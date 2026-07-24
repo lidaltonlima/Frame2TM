@@ -3,6 +3,7 @@ program main
     use Stiffness, only: get_kl, get_K
     use Rotation, only: getRotMat
     use Boundaries, only: add_boundaries
+    use Loads, only: get_F
     implicit none
 
     ! =============================================================================================
@@ -14,6 +15,7 @@ program main
     integer :: ndofn  ! Number of degrees of freedom per node
     integer :: ntm  ! Number of materials
     integer :: nts  ! Number of sections
+    integer :: nnc  ! Number of nodes with point load
     character(2) :: theory ! Theory used
 
     real(8), allocatable :: materials(:, :)
@@ -25,6 +27,10 @@ program main
     integer, allocatable :: nnr(:)  ! index of bound node
     logical, allocatable :: itydisp(:, :) ! type of bound
     real(8), allocatable :: disp(:, :)  ! displacement value
+
+    integer, allocatable :: nnoc(:)  ! index of node with load
+    real(8), allocatable :: ccno(:, :)  ! value of point load in node
+    real(8), allocatable :: F(:)  ! Vector of loads
 
     real(8), allocatable :: K(:, :)  ! Global stiffness global
 
@@ -40,15 +46,15 @@ program main
     ! =============================================================================================
     ! Calculation
     ! =============================================================================================
-    call get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, theory, itydisp, disp, &
+    call get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, theory, &
+        itydisp, disp, nnoc, ccno, &
         materials, sections, nodes, bars)
 
     kl = get_kl(nel, ndofn, theory, materials, sections, nodes, bars)
     rot = getRotMat(nel, ndofn, nodes, bars)
-
     call get_K(nno, nel, ndofn, bars, kl, rot, K)
-
     call add_boundaries(nccdesl, nnr, itydisp, disp, ndofn, K)
+    call get_F(nno, ndofn, nnc, nnoc, ccno, F)
 
     ! =============================================================================================
     ! Debug
@@ -86,6 +92,7 @@ contains
         write(*, 100) 'nmat', ntm
         write(*, 100) 'nsec', nts
         write(*, 100) 'nccdesl', nccdesl
+        write(*, 100) 'nnc', nnc
         write(*, '(1A6, ":", 1A10)') 'theory', theory
         print *
         print *
@@ -165,6 +172,21 @@ contains
         print *
         print *
 
+        ! Nodal Loads *****************************************************************************
+        write(*, '(A6)', advance='no') 'Loads '
+        do i = 1, 94
+            write(*, '(A1)', advance='no') '/'
+        end do
+        print *
+
+        write(*, '(1A4, 1A7, *(A10))') 'Id', 'node', 'Fx', 'Fy', 'Mz'
+        do i = 1, nnc
+            write(*, '(1I4, 1I7, *(F10.2))') i, nnoc(i), ccno(i, :)
+            print *
+        end do
+        print *
+        print *
+
         ! Local Stiffness Matrix ******************************************************************
         write(*, '(A17)', advance='no') 'Stiffness Matrix '
         do i = 1, 83
@@ -226,5 +248,24 @@ contains
             end do
             print *
         end do
+        print *
+        print *
+
+        ! Load Vector *****************************************************************************
+        write(*, '(A11)', advance='no') 'Lad Vector '
+        do i = 1, 89
+            write(*, '(A1)', advance='no') '/'
+        end do
+        print *
+        do i = 1, nno*ndofn
+            if (abs(F(i)) < tolerance) then
+                write(*, '(ES10.2)', advance='no') 0.0d0
+            else
+                write(*, '(ES10.2)', advance='no') F(i)
+            end if
+        end do
+        print *
+        print *
+        print *
     end subroutine show_debug
 end program main

@@ -66,6 +66,7 @@
   // Code Spell Checker ***************************************************************************
   "cSpell.language": "en, pt-BR",
   "cSpell.words": [
+    "ccno",
     "dgetrf",
     "dgetri",
     "inout",
@@ -76,6 +77,7 @@
     "nccdesl",
     "ndofn",
     "nmat",
+    "nnoc",
     "nsec"
   ],
 
