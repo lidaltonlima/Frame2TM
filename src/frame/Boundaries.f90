@@ -4,7 +4,7 @@ module Boundaries
 
     public :: add_boundaries
 contains
-    subroutine add_boundaries(nccdesl, nnr, itydisp, disp, ndofn, K)
+    subroutine add_boundaries(nccdesl, nnr, itydisp, disp, ndofn, K, F)
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
@@ -16,6 +16,7 @@ contains
 
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         real(8), allocatable, intent(inout) :: K(:, :)  ! Global stiffness global
+        real(8), allocatable :: F(:)  ! Vector of loads
 
         ! Auxiliaries
         integer :: i, dir  ! indices
@@ -29,6 +30,7 @@ contains
                     K(i_dir, :) = 0d0
                     K(:, i_dir) = 0d0
                     K(i_dir, i_dir) = 1d0
+                    F(i_dir) = 0d0
                 end if
             end do
         end do
