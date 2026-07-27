@@ -75,6 +75,7 @@
     "itydisp",
     "lwork",
     "matmul",
+    "nccdes",
     "nccdesl",
     "ndofn",
     "nmat",

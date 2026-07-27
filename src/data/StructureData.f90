@@ -3,7 +3,7 @@ module StructureData
 
     private
 
-    public :: get_structure_data
+    public :: get_structure_data, save_data_file
 
 contains
     subroutine open_data_file(file_name,  file_unit)
@@ -35,6 +35,35 @@ contains
         end if
     end subroutine open_data_file
 
+    subroutine save_data_file(file_name,  file_unit)
+        ! File vars
+        character(*), intent(in) :: file_name  ! File name
+        integer, intent(out) :: file_unit  ! Unit to file
+        character(11), parameter :: data_folder = './data/res/'  ! Data file location
+        character(4), parameter :: file_extension = '.dat'  ! Data file extension
+        integer :: file_stat  ! State of file
+        character(30) :: file_error  ! Message to file error
+        character(30) :: file_path  ! Complete path to file
+
+
+        ! Open ************************************************************************************
+        file_path = data_folder // trim(file_name) // file_extension
+        open(newUnit=file_unit, &
+            file=file_path, &
+            status='unknown', &
+            action='write', &
+            ioStat=file_stat, &
+            ioMsg=file_error)
+
+
+        ! Error ***********************************************************************************
+        if ( file_stat /= 0) then
+            print *, 'State: ', file_stat
+            print *, 'MSG: ', file_error
+            error stop 'File open'
+        end if
+    end subroutine save_data_file
+
     subroutine get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, theory, &
         itydisp, disp, nnoc, ccno, &
         materials, sections, nodes, bars)
@@ -63,8 +92,6 @@ contains
         character(2), intent(out) :: theory ! Theory used
 
         ! File vars
-        character(7), parameter :: data_folder = './data/'  ! Data file location
-        character(4), parameter :: file_extension = '.dat'  ! Data file extension
         integer :: file_unit  ! Unit to file
 
         ! Read vars
