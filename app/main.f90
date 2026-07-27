@@ -91,6 +91,10 @@ contains
     subroutine show_debug(tolerance)
         real(8), intent(in) :: tolerance
 
+        ! Auxiliary vars
+        character(10) :: int2str1
+        character(10) :: int2str2
+
         100 format(1A6, ':', 1I10)
         ! Title *******************************************************************************
         do i = 1, 100
@@ -144,9 +148,14 @@ contains
         end do
         print *
 
-        write(*, '(1A4, T7, 1A4, T37, 1A10, T64, 1A10)') 'Id','Area', 'Shear Area', 'Inertia'
+        write(int2str1, '(I0)') nsa*10 + 7
+        write(int2str2, '(I0)') nsa*10*2 + 4
+        write(*, '(1A4, T7, 1A4, T' // int2str1 // ', 1A10, T' // int2str2 // ', 1A10)') &
+            'Id','Area', 'Shear Area', 'Inertia'
+        write(int2str1, '(I0)') nsa*3
         do i = 1, nts
-            write(*, '(1I4, 9ES10.2)') &
+
+            write(*, '(1I4,' // int2str1 // 'ES10.2)') &
                 i, sections(i, 1, :), sections(i, 2, :),sections(i, 3, :)
         end do
         print *
