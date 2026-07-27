@@ -16,6 +16,7 @@ program main
     integer :: ntm  ! Number of materials
     integer :: nts  ! Number of sections
     integer :: nnc  ! Number of nodes with point load
+    integer :: nsa  ! Number of sample sections
     character(2) :: theory ! Theory used
 
     real(8), allocatable :: materials(:, :)
@@ -50,7 +51,7 @@ program main
     ! =============================================================================================
     ! Calculation
     ! =============================================================================================
-    call get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, theory, &
+    call get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, nsa, theory, &
         itydisp, disp, nnoc, ccno, &
         materials, sections, nodes, bars)
 
@@ -73,8 +74,8 @@ program main
     ! =============================================================================================
     ! Show and save values
     ! =============================================================================================
-    call show_debug(1.0d-50)
-    call save_results(1.0d-50)
+    ! call show_debug(1.0d-15)
+    call save_results(1.0d-15)
 
 contains
     subroutine solver
@@ -314,6 +315,10 @@ contains
     subroutine save_results(tolerance)
         real(8), intent(in) :: tolerance
 
+        ! Auxiliary vars
+        character(10) :: int2str1
+        character(10) :: int2str2
+
         ! File vars
         integer :: file_unit  ! Unit to file
 
@@ -347,6 +352,7 @@ contains
         write(file_unit, 100) 'nsec', nts
         write(file_unit, 100) 'nccdesl', nccdesl
         write(file_unit, 100) 'nnc', nnc
+        write(file_unit, 100) 'nsa', nsa
         write(file_unit, '(1A6, ":", 1A10)') 'theory', theory
         write(file_unit, *)
         write(file_unit, *)
@@ -372,9 +378,14 @@ contains
         end do
         write(file_unit, *)
 
-        write(file_unit, '(1A4, T7, 1A4, T37, 1A10, T64, 1A10)') 'Id','Area', 'Shear Area', 'Inertia'
+        write(int2str1, '(I0)') nsa*10 + 7
+        write(int2str2, '(I0)') nsa*10*2 + 4
+        write(file_unit, '(1A4, T7, 1A4, T' // int2str1 // ', 1A10, T' // int2str2 // ', 1A10)') &
+            'Id','Area', 'Shear Area', 'Inertia'
+        write(int2str1, '(I0)') nsa*3
         do i = 1, nts
-            write(file_unit, '(1I4, 9ES10.2)') &
+
+            write(file_unit, '(1I4,' // int2str1 // 'ES10.2)') &
                 i, sections(i, 1, :), sections(i, 2, :),sections(i, 3, :)
         end do
         write(file_unit, *)

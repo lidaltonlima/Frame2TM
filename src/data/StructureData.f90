@@ -64,7 +64,7 @@ contains
         end if
     end subroutine save_data_file
 
-    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, theory, &
+    subroutine get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, nsa, theory, &
         itydisp, disp, nnoc, ccno, &
         materials, sections, nodes, bars)
         ! PURPOSE: Get da data structure
@@ -77,6 +77,7 @@ contains
         integer, intent(out) :: nts  ! Number of sections
         integer, intent(out) :: nccdesl  ! Number of boundaries condition
         integer, intent(out) :: nnc  ! Number of nodes with point load
+        integer :: nsa  ! Number of sample sections
 
         real(8), intent(out), allocatable :: materials(:, :)
         real(8), intent(out), allocatable :: sections(:, :, :)
@@ -131,6 +132,8 @@ contains
                         nccdesl = temp_int
                     case ('nnc')
                         nnc = temp_int
+                    case ('nsa')
+                        nsa = temp_int
                     case ('theory')
                         if (temp_int == 0) then
                             theory = 'OB'
@@ -171,7 +174,7 @@ contains
         ! SECTIONS
         ! =========================================================================================
         ! Allocation ******************************************************************************
-        allocate(sections(nts, 3, 3))
+        allocate(sections(nts, 3, nsa))
 
         ! Open ************************************************************************************
         call open_data_file('sections', file_unit)
@@ -181,6 +184,7 @@ contains
         do id = 1, nts
             read(file_unit, *) sections(id, 1, :), sections(id, 2, :), sections(id, 3, :)
         end do
+
         ! Close ***********************************************************************************
         close(file_unit)
 
