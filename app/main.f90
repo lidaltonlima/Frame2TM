@@ -4,6 +4,8 @@ program main
     use Rotation, only: getRotMat
     use Boundaries, only: add_boundaries
     use Loads, only: get_F
+    use Reaction, only: get_reactions
+    use Efforts, only: get_efforts
     implicit none
 
     ! =============================================================================================
@@ -35,19 +37,21 @@ program main
 
     real(8), allocatable :: K(:, :)  ! Global stiffness global
     real(8), allocatable :: D(:)  ! Displacements
+    real(8), allocatable :: reactions(:)  ! reactions
 
 
     ! Calculate data
     real(8), allocatable :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
     real(8), allocatable :: rot(:, :, :)  ! Matrix of rotation
+    real(8), allocatable :: Eff(:, :)  ! elements efforts
 
     ! Controls
     integer :: i, j  ! Indexes
     integer :: id  ! Index id
 
     ! Auxiliaries
-    real(8), allocatable :: K_show(:, :)
-    real(8), allocatable :: F_show(:)
+    real(8), allocatable :: Kwb(:, :)  ! stiffness matrix without boundary condiciones
+    real(8), allocatable :: Fwb(:)
     integer :: dir
     integer :: i_dir
 
@@ -58,9 +62,11 @@ program main
         itydisp, disp, nnoc, ccno, &
         materials, sections, nodes, bars)
 
-    allocate(K_show(nno*ndofn, nno*ndofn))
-    allocate(F_show(nno*ndofn))
+    allocate(Kwb(nno*ndofn, nno*ndofn))
+    allocate(Fwb(nno*ndofn))
     allocate(D(nno*ndofn))
+    allocate(reactions(nno*ndofn))
+    allocate(Eff(nel, nno*ndofn))
 
     kl = get_kl(nel, ndofn, theory, materials, sections, nodes, bars)
     rot = getRotMat(nel, ndofn, nodes, bars)
@@ -68,14 +74,18 @@ program main
 
     call get_F(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
 
-    K_show = K
-    F_show = F
+    Kwb = K
+    Fwb = F
+
     call add_boundaries(nccdesl, nnr, itydisp, disp, ndofn, K, F)
 
     D = F
 
     call solver()
+    call get_reactions(reactions, kwb, D, Fwb, nccdesl, nnr, itydisp, disp, ndofn, nno)
+    ! call get_efforts(Eff, reactions, nel, bars, kl, rot, kwb, D, Fwb)
 
+    ! Sum the previus displacement
     do i = 1, nccdesl
         do dir = 1, ndofn
             i_dir = (ndofn * (nnr(i) - 1)) + dir
@@ -85,7 +95,6 @@ program main
             end if
         end do
     end do
-
 
 
     ! =============================================================================================
@@ -297,10 +306,10 @@ contains
         write(file_unit, *)
         do i = 1, nno*ndofn
             do j = 1, nno*ndofn
-                if (abs(K_show(i, j)) < tolerance) then
+                if (abs(Kwb(i, j)) < tolerance) then
                     write(file_unit, '(ES10.2)', advance='no') 0.0d0
                 else
-                    write(file_unit, '(ES10.2)', advance='no') K_show(i, j)
+                    write(file_unit, '(ES10.2)', advance='no') Kwb(i, j)
                 end if
             end do
             write(file_unit, *)
@@ -315,10 +324,10 @@ contains
         end do
         write(file_unit, *)
         do i = 1, nno*ndofn
-            if (abs(F_show(i)) < tolerance) then
+            if (abs(Fwb(i)) < tolerance) then
                 write(file_unit, '(ES10.2)', advance='no') 0.0d0
             else
-                write(file_unit, '(ES10.2)', advance='no') F_show(i)
+                write(file_unit, '(ES10.2)', advance='no') Fwb(i)
             end if
         end do
         write(file_unit, *)
@@ -336,6 +345,23 @@ contains
                 write(file_unit, '(ES15.6)', advance='no') 0.0d0
             else
                 write(file_unit, '(ES15.6)', advance='no') D(i)
+            end if
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Reactions *******************************************************************************
+        write(file_unit, '(A10)', advance='no') 'Reactions '
+        do i = 1, 90
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do i = 1, nno*ndofn
+            if (abs(reactions(i)) < tolerance) then
+                write(file_unit, '(ES15.6)', advance='no') 0.0d0
+            else
+                write(file_unit, '(ES15.6)', advance='no') reactions(i)
             end if
         end do
         write(file_unit, *)
