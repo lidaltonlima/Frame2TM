@@ -4,8 +4,7 @@ program main
     use Rotation, only: getRotMat
     use Boundaries, only: add_boundaries
     use Loads, only: get_F
-    use Reaction, only: get_reactions
-    use Efforts, only: get_efforts
+    use Reactions, only: get_reactions, get_el_reactions
     implicit none
 
     ! =============================================================================================
@@ -95,7 +94,7 @@ program main
         end do
     end do
 
-    call get_efforts(Eff, nel, kl, rot, D, Fwb)
+    call get_el_reactions(Eff, nel, kl, rot, D)
 
     ! =============================================================================================
     ! Show and save values

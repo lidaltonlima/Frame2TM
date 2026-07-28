@@ -1,7 +1,7 @@
-module Reaction
+module Reactions
     implicit none
     private
-    public :: get_reactions
+    public :: get_reactions, get_el_reactions
 contains
     subroutine get_reactions(reactions, Kwb, D, F, nccdesl, nnr, itydisp, ndofn, nno)
         ! =========================================================================================
@@ -36,4 +36,26 @@ contains
             end do
         end do
     end subroutine get_reactions
-end module Reaction
+
+    subroutine get_el_reactions(Eff, nel, kl, rot, D)
+        ! =========================================================================================
+        ! Vars Statements
+        ! =========================================================================================
+        ! I/O
+        real(8), allocatable, intent(inout) :: Eff(:, :)  ! elements efforts
+        real(8), allocatable, intent(in) :: D(:)  ! Displacements
+        real(8), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
+        integer, intent(in) :: nel  ! Number of elements
+        real(8), allocatable, intent(in) :: rot(:, :, :)  ! Matrix of rotation
+
+        ! Aux
+        integer :: i
+        real(8) :: kg(6, 6)
+
+
+        do i = 1, nel
+            kg = matmul(matmul(transpose(rot(i, :, :)), kl(i, :, :)), rot(i, :, :))
+            Eff(i, :) = matmul(kg, D)
+        end do
+    end subroutine get_el_reactions
+end module Reactions
