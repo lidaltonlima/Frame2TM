@@ -5,21 +5,23 @@ program StructureTest
     ! =============================================================================================
     ! Var statements
     ! =============================================================================================
-    ! Control parameters
+    ! Control parameters **************************************************************************
     logical, parameter :: detail = .false.
 
-    ! General
+    ! General *************************************************************************************
     integer :: file_unit_t, file_unit_r  ! number of unit file
     character(300) :: line_t, line_r  ! value of line readd
     integer :: ios  ! state of read
 
-
-    ! Aux
+    ! Aux *****************************************************************************************
     integer :: line_number  ! number of current line
     integer :: qtd_lines  ! quantity of lines in the right document
     character :: line  ! text in the line
     integer :: i  ! index for loops
 
+    ! =============================================================================================
+    ! Process
+    ! =============================================================================================
     ! Header **************************************************************************************
     do i = 1, 100
         write(*, '(1A)', advance='no') '='

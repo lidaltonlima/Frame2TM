@@ -73,6 +73,7 @@
     "inout",
     "ipiv",
     "itydisp",
+    "Lapack",
     "lwork",
     "matmul",
     "nccdes",

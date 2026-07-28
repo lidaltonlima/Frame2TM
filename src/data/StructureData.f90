@@ -1,22 +1,31 @@
 module StructureData
     implicit none
-
     private
-
     public :: get_structure_data, save_data_file
 
 contains
     subroutine open_data_file(file_name,  file_unit)
-        ! File vars
+        ! Open the file to get data
+
+        ! =========================================================================================
+        ! Vars statement
+        ! =========================================================================================
+        ! I/O
         character(*), intent(in) :: file_name  ! File name
         integer, intent(out) :: file_unit  ! Unit to file
+
+        ! Parameters
         character(7), parameter :: data_folder = './data/'  ! Data file location
         character(4), parameter :: file_extension = '.dat'  ! Data file extension
+
+        ! aux
         integer :: file_stat  ! State of file
         character(30) :: file_error  ! Message to file error
         character(30) :: file_path  ! Complete path to file
 
-
+        ! =========================================================================================
+        ! Process
+        ! =========================================================================================
         ! Open ************************************************************************************
         file_path = data_folder // trim(file_name) // file_extension
         open(newUnit=file_unit, &
@@ -36,7 +45,12 @@ contains
     end subroutine open_data_file
 
     subroutine save_data_file(file_name,  file_unit)
-        ! File vars
+        ! Save data in file
+
+        ! =========================================================================================
+        ! Vars statement
+        ! =========================================================================================
+        ! I/O
         character(*), intent(in) :: file_name  ! File name
         integer, intent(out) :: file_unit  ! Unit to file
         character(11), parameter :: data_folder = './data/res/'  ! Data file location
@@ -45,7 +59,9 @@ contains
         character(30) :: file_error  ! Message to file error
         character(30) :: file_path  ! Complete path to file
 
-
+        ! =========================================================================================
+        ! Process
+        ! =========================================================================================
         ! Open ************************************************************************************
         file_path = data_folder // trim(file_name) // file_extension
         open(newUnit=file_unit, &
@@ -67,9 +83,12 @@ contains
     subroutine get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, nsa, theory, &
         itydisp, disp, nnoc, ccno, &
         materials, sections, nodes, bars)
-        ! PURPOSE: Get da data structure
+        ! Get the data structure
 
-        ! I/O vars
+        ! =========================================================================================
+        ! Vars statement
+        ! =========================================================================================
+        ! I/O
         integer, intent(out) :: nno  ! Number of nodes
         integer, intent(out) :: nel  ! Number of elements
         integer, intent(out) :: ndofn  ! Number of degrees of freedom per node
@@ -78,33 +97,32 @@ contains
         integer, intent(out) :: nccdesl  ! Number of boundaries condition
         integer, intent(out) :: nnc  ! Number of nodes with point load
         integer, intent(out) :: nsa  ! Number of sample sections
+        character(2), intent(out) :: theory ! Theory used (EB: Euler-Bernoulli or TM: Timoshenko)
 
         real(8), intent(out), allocatable :: materials(:, :)
         real(8), intent(out), allocatable :: sections(:, :, :)
         real(8), intent(out), allocatable :: nodes(:, :)
         integer, intent(out), allocatable :: bars(:, :)
-        integer, allocatable :: nnr(:)  ! index of bound node
-        logical, allocatable :: itydisp(:, :) ! type of bound
+
+        integer, intent(out), allocatable :: nnr(:)  ! index of bound node
+        logical, intent(out), allocatable :: itydisp(:, :) ! type of bound
         real(8), intent(out), allocatable :: disp(:, :)  ! displacement value
 
         integer, allocatable :: nnoc(:)  ! index of node with load
         real(8), allocatable :: ccno(:, :)  ! value of point load in node
 
-        character(2), intent(out) :: theory ! Theory used
-
-        ! File vars
+        ! File
         integer :: file_unit  ! Unit to file
 
-        ! Read vars
+        ! Read
         integer :: read_stat  ! State of current read
 
-        ! Control vars
+        ! Control
         integer :: id  ! Object ID
         character(20) :: line_label
 
-        ! Temp vars
+        ! Temp
         integer :: temp_int
-
 
         ! =========================================================================================
         ! CONTROLS

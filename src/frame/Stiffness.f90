@@ -1,6 +1,6 @@
 module Stiffness
-    use Lagrange, only: LagPol
     use GQint, only: intGQ
+    use LinearAlgebra, only: inv, LagPol
     implicit none
     private
 
@@ -180,47 +180,6 @@ contains
         K(sj:ej, si:ei) = K(sj:ej, si:ei) + kg(4:, :3)  ! k_ji
         K(sj:ej, sj:ej) = K(sj:ej, sj:ej) + kg(4:, 4:)  ! k_jj
     end subroutine add_k
-
-    function inv(mat) result(mat_inv)
-        ! Calculate the inverse of matrix
-
-        ! =========================================================================================
-        ! Vars statement
-        ! =========================================================================================
-        ! I/O
-        real(8), intent(in) :: mat(:, :)
-
-        ! Auxiliary
-        integer :: n
-        integer :: info
-        integer :: lwork
-
-        integer, allocatable :: ipiv(:)
-
-        real(8), allocatable :: work(:)
-        real(8), allocatable :: mat_inv(:, :)
-
-        ! External functions
-        external :: dgetrf, dgetri
-
-        n = size(mat, 1)
-        if (size(mat, 2) /= n) error stop 'inv requires a square matrix'
-
-        ! Allocate
-        allocate(mat_inv(n, n))
-        allocate(ipiv(n))
-
-        ! Initialize vars
-        mat_inv = mat
-        lwork = n
-
-        call dgetrf(n, n, mat_inv, n, ipiv, info)
-        if (info /= 0) error stop 'DGETRF failed while inverting matrix in inv'
-
-        allocate(work(lwork))
-        call dgetri(n, mat_inv, n, ipiv, work, lwork, info)
-        if (info /= 0) error stop 'DGETRI failed while inverting matrix in inv'
-    end function inv
 
     pure function ka(x) result(y)
         real(8), intent(in) :: x
