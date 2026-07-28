@@ -97,7 +97,7 @@ program main
         end do
     end do
 
-    call get_el_reactions(El_reactions, nel, kl, rot, D)
+    call get_el_reactions(El_reactions, nel, ndofn, bars, kl, rot, D)
     call get_efforts(Eff, El_reactions, bars, nodes, nel)
 
     ! =============================================================================================
