@@ -378,9 +378,9 @@ contains
         write(file_unit, *)
         do i = 1, nno*ndofn
             if (abs(D(i)) < tolerance) then
-                write(file_unit, '(ES15.6)', advance='no') 0.0d0
+                write(file_unit, '(ES13.4)', advance='no') 0.0d0
             else
-                write(file_unit, '(ES15.6)', advance='no') D(i)
+                write(file_unit, '(ES13.4)', advance='no') D(i)
             end if
         end do
         write(file_unit, *)
@@ -395,9 +395,9 @@ contains
         write(file_unit, *)
         do i = 1, nno*ndofn
             if (abs(reactions(i)) < tolerance) then
-                write(file_unit, '(ES15.6)', advance='no') 0.0d0
+                write(file_unit, '(ES13.4)', advance='no') 0.0d0
             else
-                write(file_unit, '(ES15.6)', advance='no') reactions(i)
+                write(file_unit, '(ES13.4)', advance='no') reactions(i)
             end if
         end do
         write(file_unit, *)
