@@ -3,16 +3,13 @@ module Efforts
     private
     public :: get_efforts
 contains
-    subroutine get_efforts(Eff, reactions, nel, bars, kl, rot, Kwb, D, F)
+    subroutine get_efforts(Eff, nel, kl, rot, D, F)
         ! =========================================================================================
         ! Vars Statements
         ! =========================================================================================
         ! I/O
-        real(8), allocatable, intent(inout) :: reactions(:)  ! reactions
-        real(8), allocatable, intent(in) :: Kwb(:, :)
         real(8), allocatable, intent(in) :: D(:)  ! Displacements
         real(8), allocatable, intent(in) :: F(:)  ! Vector of loads
-        integer, allocatable, intent(in) :: bars(:, :)
         real(8), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
         real(8), allocatable, intent(inout) :: Eff(:, :)  ! elements efforts
         integer, intent(in) :: nel  ! Number of elements

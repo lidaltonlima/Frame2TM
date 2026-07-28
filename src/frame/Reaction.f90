@@ -3,7 +3,7 @@ module Reaction
     private
     public :: get_reactions
 contains
-    subroutine get_reactions(reactions, Kwb, D, F, nccdesl, nnr, itydisp, disp, ndofn, nno)
+    subroutine get_reactions(reactions, Kwb, D, F, nccdesl, nnr, itydisp, ndofn, nno)
         ! =========================================================================================
         ! Vars Statements
         ! =========================================================================================
@@ -15,7 +15,6 @@ contains
         integer, intent(in) :: nccdesl  ! Number of boundaries condition
         integer, allocatable, intent(in) :: nnr(:)  ! index of bound node
         logical, allocatable, intent(in) :: itydisp(:, :) ! type of bound
-        real(8), allocatable, intent(in) :: disp(:, :)  ! displacement value
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         integer, intent(in) :: nno  ! Number of nodes
 

@@ -82,8 +82,7 @@ program main
     D = F
 
     call solver()
-    call get_reactions(reactions, kwb, D, Fwb, nccdesl, nnr, itydisp, disp, ndofn, nno)
-    ! call get_efforts(Eff, reactions, nel, bars, kl, rot, kwb, D, Fwb)
+    call get_reactions(reactions, kwb, D, Fwb, nccdesl, nnr, itydisp, ndofn, nno)
 
     ! Sum the previus displacement
     do i = 1, nccdesl
@@ -96,6 +95,7 @@ program main
         end do
     end do
 
+    call get_efforts(Eff, nel, kl, rot, D, Fwb)
 
     ! =============================================================================================
     ! Show and save values
@@ -294,6 +294,19 @@ contains
                 end do
                 write(file_unit, *)
             end do
+        end do
+        write(file_unit, *)
+
+        ! Efforts ******************************************************************************
+        write(file_unit, '(A8)', advance='no') 'Efforts '
+        do i = 1, 92
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do id = 1, nel
+            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
+            write(file_unit, '(*(ES15.4))') Eff(id, :)
+            write(file_unit, *)
         end do
         write(file_unit, *)
         write(file_unit, *)
