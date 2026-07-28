@@ -109,18 +109,11 @@ contains
     subroutine solver
         ! Auxiliaries
         integer :: info  ! status of operation
-        integer :: index
 
         ! External
         external :: dposv
 
         call dposv('U', nno*ndofn, 1, K, nno*ndofn, D, nno*ndofn, info)
-
-        do index = 1, 6
-            write(*, '(*(ES13.2))') K(index, :)
-        end do
-        print *
-        write(*, '(*(ES13.2))') F(:)
     end subroutine solver
 
     subroutine save_results(tolerance)

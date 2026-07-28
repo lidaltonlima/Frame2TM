@@ -1,9 +1,9 @@
-nno     4   ! Number of nodes 
-nel     3   ! Number of elements 
+nno     2   ! Number of nodes 
+nel     1   ! Number of elements 
 ntm     1   ! Number of materials
 nts     1   ! Number of sections
 ndofn   3   ! Number of free degrees
-nccdesl 2   ! Number of nodes with boundaries conditions
-nnc     2   ! Number of nodes with point loads
+nccdesl 1   ! Number of nodes with boundaries conditions
+nnc     1   ! Number of nodes with point loads
 nsa     5   ! Number of sample sections
 theory  1   ! Theory of (0) Euler-Bernoulli or (1) Timoshenko
