@@ -5,6 +5,7 @@ program main
     use Boundaries, only: add_boundaries
     use Loads, only: get_F
     use Reactions, only: get_reactions, get_el_reactions
+    use Efforts, only: get_efforts
     implicit none
 
     ! =============================================================================================
@@ -42,6 +43,7 @@ program main
     ! Calculate data
     real(8), allocatable :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
     real(8), allocatable :: rot(:, :, :)  ! Matrix of rotation
+    real(8), allocatable :: El_reactions(:, :)  ! elements reactions
     real(8), allocatable :: Eff(:, :)  ! elements efforts
 
     ! Controls
@@ -65,7 +67,8 @@ program main
     allocate(Fwb(nno*ndofn))
     allocate(D(nno*ndofn))
     allocate(reactions(nno*ndofn))
-    allocate(Eff(nel, nno*ndofn))
+    allocate(El_reactions(nel, 2*ndofn))
+    allocate(Eff(nel, 2*ndofn))
 
     kl = get_kl(nel, ndofn, theory, materials, sections, nodes, bars)
     rot = getRotMat(nel, ndofn, nodes, bars)
@@ -94,7 +97,8 @@ program main
         end do
     end do
 
-    call get_el_reactions(Eff, nel, kl, rot, D)
+    call get_el_reactions(El_reactions, nel, kl, rot, D)
+    call get_efforts(Eff, El_reactions, bars, nodes, nel)
 
     ! =============================================================================================
     ! Show and save values
@@ -296,16 +300,36 @@ contains
         end do
         write(file_unit, *)
 
-        ! Efforts ******************************************************************************
-        write(file_unit, '(A8)', advance='no') 'Efforts '
-        do i = 1, 92
+        ! Element Reactions ***********************************************************************
+        write(file_unit, '(A18)', advance='no') 'Element Reactions '
+        do i = 1, 82
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do id = 1, nel
+            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
+            write(file_unit, '(*(ES15.4))') El_reactions(id, :)
+
+            if (id /= nel) then
+                write(file_unit, *)
+            end if
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Element Efforts *************************************************************************
+        write(file_unit, '(A16)', advance='no') 'Element Efforts '
+        do i = 1, 84
             write(file_unit, '(A1)', advance='no') '/'
         end do
         write(file_unit, *)
         do id = 1, nel
             write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
             write(file_unit, '(*(ES15.4))') Eff(id, :)
-            write(file_unit, *)
+
+            if (id /= nel) then
+                write(file_unit, *)
+            end if
         end do
         write(file_unit, *)
         write(file_unit, *)
