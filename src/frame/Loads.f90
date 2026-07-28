@@ -1,9 +1,9 @@
 module Loads
     implicit none
     private
-    public :: get_F
+    public :: calc_F
 contains
-    subroutine get_F(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
+    subroutine calc_F(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
@@ -50,5 +50,5 @@ contains
         end do
 
         F = F - matmul(K, Dp)
-    end subroutine get_F
+    end subroutine calc_F
 end module Loads

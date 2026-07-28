@@ -1,9 +1,9 @@
 program main
     use StructureData, only: get_structure_data, save_data_file, save_results
-    use Stiffness, only: get_kl, get_K
-    use Rotation, only: getRotMat
+    use Stiffness, only: calc_kl, calc_K
+    use Rotation, only: calc_Rot
     use Boundaries, only: add_boundaries
-    use Loads, only: get_F
+    use Loads, only: calc_F
     use Reactions, only: get_reactions, get_el_reactions
     use Efforts, only: get_efforts
     implicit none
@@ -11,6 +11,9 @@ program main
     ! =============================================================================================
     ! Vars statement
     ! =============================================================================================
+    ! Structure data ******************************************************************************
+    real(8), parameter :: tolerance = 1.0d-15  ! tolerance to zero number
+
     ! Structure data ******************************************************************************
     integer :: nno  ! Number of nodes
     integer :: nel  ! Number of elements
@@ -34,7 +37,6 @@ program main
     integer, allocatable :: nnoc(:)  ! index of node with load
     real(8), allocatable :: ccno(:, :)  ! value of point load in node
 
-
     ! Calculate data ******************************************************************************
     real(8), allocatable :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
     real(8), allocatable :: rot(:, :, :)  ! Matrix of rotation
@@ -49,40 +51,50 @@ program main
     integer :: i ! Indexes
 
     ! Aux *****************************************************************************************
-    real(8), allocatable :: Kwb(:, :)  ! stiffness matrix without boundary condiciones
-    real(8), allocatable :: Fwb(:)
-    integer :: dir
-    integer :: i_dir
+    real(8), allocatable :: K_aux(:, :)  ! stiffness matrix without boundary condiciones
+    real(8), allocatable :: F_aux(:)
+    integer :: dir  ! direction of degree of freedom
+    integer :: i_dir  ! index of direction of degree of freedom
+    integer :: dim  ! Dimension of matrices and vectors
+    integer :: info  ! status of operation (dposv - Lapack)
+
+    ! External ************************************************************************************
+    external :: dposv  ! solve symmetric positive defined matrix system (Lapack)
 
     ! =============================================================================================
-    ! Calculation
+    ! Initialize
     ! =============================================================================================
+    ! Get data from files
     call get_structure_data(nno, nel, ndofn, ntm, nts, nccdesl, nnr, nnc, nsa, theory, &
         itydisp, disp, nnoc, ccno, &
         materials, sections, nodes, bars)
 
-    allocate(Kwb(nno*ndofn, nno*ndofn))
-    allocate(Fwb(nno*ndofn))
-    allocate(D(nno*ndofn))
-    allocate(reactions(nno*ndofn))
+    dim = nno * ndofn
+
+    ! Allocation
+    allocate(K_aux(dim, dim))
+    allocate(F_aux(dim))
+    allocate(D(dim))
+    allocate(reactions(dim))
     allocate(El_reactions(nel, 2*ndofn))
     allocate(Eff(nel, 2*ndofn))
 
-    kl = get_kl(nel, nsa, ndofn, theory, materials, sections, nodes, bars)
-    rot = getRotMat(nel, ndofn, nodes, bars)
-    call get_K(nno, nel, ndofn, bars, kl, rot, K)
+    ! =============================================================================================
+    ! Calculation
+    ! =============================================================================================
+    call calc_kl(kl, nel, nsa, ndofn, theory, materials, sections, nodes, bars)
+    call calc_Rot(rot, nel, ndofn, nodes, bars)
+    call calc_K(nno, nel, ndofn, bars, kl, rot, K)
+    call calc_F(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
 
-    call get_F(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
+    K_aux = K
+    F_aux = F
+    call add_boundaries(nccdesl, nnr, itydisp, disp, ndofn, K_aux, F_aux)
 
-    Kwb = K
-    Fwb = F
+    D = F_aux
+    call dposv('U', dim, 1, K_aux, dim, D, dim, info)
 
-    call add_boundaries(nccdesl, nnr, itydisp, disp, ndofn, K, F)
-
-    D = F
-
-    call solver()
-    call get_reactions(reactions, kwb, D, Fwb, nccdesl, nnr, itydisp, ndofn, nno)
+    call get_reactions(reactions, K, D, F, nccdesl, nnr, itydisp, ndofn, nno)
 
     ! Sum the previus displacement
     do i = 1, nccdesl
@@ -101,18 +113,9 @@ program main
     ! =============================================================================================
     ! Show and save values
     ! =============================================================================================
-    call save_results(1.0d-15, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
+    call save_results(tolerance, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
         materials, sections, nodes, bars, nccdesl, nnr, itydisp, disp, nnoc, ccno, &
-        kl, rot, reactions, El_reactions, Eff, Kwb, Fwb, D)
+        kl, rot, reactions, El_reactions, Eff, K, F, D)
 
 contains
-    subroutine solver
-        ! Auxiliaries
-        integer :: info  ! status of operation
-
-        ! External
-        external :: dposv
-
-        call dposv('U', nno*ndofn, 1, K, nno*ndofn, D, nno*ndofn, info)
-    end subroutine solver
 end program main

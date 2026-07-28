@@ -4,9 +4,9 @@ module Rotation
     implicit none
     private
 
-    public :: getRotMat
+    public :: calc_Rot
 contains
-    pure function getRotMat(nel, ndofn, nodes, bars) result(rot)
+    pure subroutine calc_Rot(rot, nel, ndofn, nodes, bars)
         ! Calculate the rotation matrix
 
         ! =========================================================================================
@@ -17,7 +17,7 @@ contains
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         real(8), intent(in) :: nodes(:, :)
         integer, intent(in) :: bars(:, :)
-        real(8), allocatable :: rot(:, :, :) ! Matrix of rotation
+        real(8), allocatable, intent(out) :: rot(:, :, :) ! Matrix of rotation
 
         ! Auxiliaries *****************************************************************************
         integer :: id
@@ -66,5 +66,5 @@ contains
 
             rot(id, 4:, 4:) = rot(id, :3, :3)
         end do
-    end function getRotMat
+    end subroutine calc_Rot
 end module Rotation

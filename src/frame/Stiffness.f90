@@ -4,7 +4,7 @@ module Stiffness
     implicit none
     private
 
-    public :: get_kl, get_K
+    public :: calc_kl, calc_K
 
     real(8) :: E  ! Elasticity module
     real(8) :: G
@@ -17,14 +17,14 @@ module Stiffness
     real(8), allocatable :: el_px(:)  ! Points of sample sections
 
 contains
-    function get_kl(nel, nsa, ndofn, theory, materials, sections, nodes, bars) result(kl)
+    subroutine calc_kl(kl, nel, nsa, ndofn, theory, materials, sections, nodes, bars)
         ! Calculate the stiffness matrix local for all elements
 
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
         ! I/O
-        real(8), allocatable:: kl(:, :, :) ! Stiffness matrix kl(i, j, element_id)
+        real(8), allocatable, intent(out):: kl(:, :, :) ! Stiffness matrix kl(i, j, element_id)
         integer, intent(in) :: nel  ! Number of elements
         integer, intent(in) :: nsa
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
@@ -117,9 +117,9 @@ contains
             kl(id, 4:, 4:) = fFf
             kl(id, 4:, :3) = fFi
         end do
-    end function get_kl
+    end subroutine
 
-    subroutine get_K(nno, nel, ndofn, bars, kl, rot, K)
+    subroutine calc_K(nno, nel, ndofn, bars, kl, rot, K)
         ! Calculate the global stiffness matrix
 
         ! =========================================================================================
