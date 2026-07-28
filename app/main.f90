@@ -70,7 +70,7 @@ program main
     allocate(El_reactions(nel, 2*ndofn))
     allocate(Eff(nel, 2*ndofn))
 
-    kl = get_kl(nel, ndofn, theory, materials, sections, nodes, bars)
+    kl = get_kl(nel, nsa, ndofn, theory, materials, sections, nodes, bars)
     rot = getRotMat(nel, ndofn, nodes, bars)
     call get_K(nno, nel, ndofn, bars, kl, rot, K)
 
@@ -109,11 +109,18 @@ contains
     subroutine solver
         ! Auxiliaries
         integer :: info  ! status of operation
+        integer :: index
 
         ! External
         external :: dposv
 
         call dposv('U', nno*ndofn, 1, K, nno*ndofn, D, nno*ndofn, info)
+
+        do index = 1, 6
+            write(*, '(*(ES13.2))') K(index, :)
+        end do
+        print *
+        write(*, '(*(ES13.2))') F(:)
     end subroutine solver
 
     subroutine save_results(tolerance)

@@ -77,7 +77,7 @@ contains
         integer, intent(out) :: nts  ! Number of sections
         integer, intent(out) :: nccdesl  ! Number of boundaries condition
         integer, intent(out) :: nnc  ! Number of nodes with point load
-        integer :: nsa  ! Number of sample sections
+        integer, intent(out) :: nsa  ! Number of sample sections
 
         real(8), intent(out), allocatable :: materials(:, :)
         real(8), intent(out), allocatable :: sections(:, :, :)

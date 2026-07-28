@@ -8,14 +8,16 @@ module Stiffness
 
     real(8) :: E  ! Elasticity module
     real(8) :: G
-    real(8) :: A(3)  ! Area
-    real(8) :: As(3)
+    real(8), allocatable :: A(:)  ! Area
+    real(8), allocatable :: As(:)
     real(8) :: L  ! Length
-    real(8) :: I(3)  ! Inertia
+    real(8), allocatable :: I(:)  ! Inertia
     character(2) :: theory_g
 
+    real(8), allocatable :: el_px(:)  ! Points of sample sections
+
 contains
-    function get_kl(nel, ndofn, theory, materials, sections, nodes, bars) result(kl)
+    function get_kl(nel, nsa, ndofn, theory, materials, sections, nodes, bars) result(kl)
         ! Calculate the stiffness matrix local for all elements
 
         ! =========================================================================================
@@ -24,6 +26,7 @@ contains
         ! I/O
         real(8), allocatable:: kl(:, :, :) ! Stiffness matrix kl(i, j, element_id)
         integer, intent(in) :: nel  ! Number of elements
+        integer, intent(in) :: nsa
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         real(8), intent(in) :: materials(:, :)
         real(8), intent(in) :: sections(:, :, :)
@@ -46,8 +49,19 @@ contains
 
         integer :: kl_dim  ! Dimension of stiffness matrix element
         real(8) :: dx, dy  ! Delta x and delta y
+        real(8) :: step  ! Step to get sections samples
+        integer :: index
 
         kl_dim = 2 * ndofn  ! 2 nodes per element
+
+        if (nsa < 2) then
+            error stop 'get_kl requires nsa >= 2'
+        end if
+
+        allocate(el_px(nsa))
+        allocate(A(nsa))
+        allocate(As(nsa))
+        allocate(I(nsa))
 
         ! =========================================================================================
         ! Calculation
@@ -68,6 +82,12 @@ contains
             dx = nodes(bars(id, 4), 1) - nodes(bars(id, 3), 1)
             dy = nodes(bars(id, 4), 2) - nodes(bars(id, 3), 2)
             L = sqrt(dx**2 + dy**2)
+
+            ! Get points of sample sections
+            step = L / (nsa - 1)
+            do index = 1, nsa
+                el_px(index) = step * (index - 1)
+            end do
 
             EII = 0d0
             EII(1, 1) = 1
@@ -206,21 +226,21 @@ contains
         real(8), intent(in) :: x
         real(8) :: y
 
-        y = E * LagPol([0d0, L/2, L], A, x)
+        y = E * LagPol(el_px, A, x)
     end function ka
 
     pure function kb(x) result(y)
         real(8), intent(in) :: x
         real(8) :: y
 
-        y = E * LagPol([0d0, L/2, L], I, x)
+        y = E * LagPol(el_px, I, x)
     end function kb
 
     pure function ks(x) result(y)
         real(8), intent(in) :: x
         real(8) :: y
 
-        y = G * LagPol([0d0, L/2, L], As, x)
+        y = G * LagPol(el_px, As, x)
     end function ks
 
     pure function a11(x) result(y)
