@@ -1,7 +1,7 @@
 module StructureData
     implicit none
     private
-    public :: get_structure_data, save_data_file
+    public :: get_structure_data, save_data_file, save_results
 
 contains
     subroutine open_data_file(file_name,  file_unit)
@@ -278,4 +278,335 @@ contains
         ! Close ***********************************************************************************
         close(file_unit)
     end subroutine get_structure_data
+
+    subroutine save_results(tolerance, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
+        materials, sections, nodes, bars, &
+        nccdesl, nnr, itydisp, disp, nnoc, ccno, &
+        kl, rot, reactions, El_reactions, Eff, Kwb, Fwb, D)
+        real(8), intent(in) :: tolerance
+        ! =========================================================================================
+        ! Vars statement
+        ! =========================================================================================
+        integer, intent(in) :: nno  ! Number of nodes
+        integer, intent(in) :: nel  ! Number of elements
+        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
+        integer, intent(in) :: ntm  ! Number of materials
+        integer, intent(in) :: nts  ! Number of sections
+        integer, intent(in) :: nnc  ! Number of nodes with point load
+        integer, intent(in) :: nsa  ! Number of sample sections
+        character(2), intent(in) :: theory ! Theory used
+
+        real(8), allocatable, intent(in) :: materials(:, :)
+        real(8), allocatable, intent(in) :: sections(:, :, :)
+        real(8), allocatable, intent(in) :: nodes(:, :)
+        integer, allocatable, intent(in) :: bars(:, :)
+
+        integer, intent(in) :: nccdesl  ! Number of boundaries condition
+        integer, allocatable, intent(in) :: nnr(:)  ! index of bound node
+        logical, allocatable, intent(in) :: itydisp(:, :) ! type of bound
+        real(8), allocatable, intent(in) :: disp(:, :)  ! displacement value
+
+        integer, allocatable, intent(in) :: nnoc(:)  ! index of node with load
+        real(8), allocatable, intent(in) :: ccno(:, :)  ! value of point load in node
+
+        real(8), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix
+        real(8), allocatable, intent(in) :: rot(:, :, :)  ! Matrix of rotation
+
+        real(8), allocatable, intent(in) :: reactions(:)  ! reactions
+        real(8), allocatable, intent(in) :: El_reactions(:, :)  ! elements reactions
+        real(8), allocatable, intent(in) :: Eff(:, :)  ! elements efforts
+
+        real(8), allocatable, intent(in) :: Kwb(:, :)  ! stiffness matrix without boundary condiciones
+        real(8), allocatable, intent(in) :: Fwb(:)
+        real(8), allocatable, intent(in) :: D(:)  ! Displacements
+
+        ! File ************************************************************************************
+        integer :: file_unit  ! Unit to file
+
+        ! Aux *************************************************************************************
+        character(10) :: int2str1
+        character(10) :: int2str2
+        integer :: i, j, id ! index
+
+        call save_data_file('results', file_unit)
+
+        ! =========================================================================================
+        ! Processes
+        ! =========================================================================================
+        ! Title *******************************************************************************
+        100 format(1A6, ':', 1I10)
+        do i = 1, 100
+            write(file_unit, '(A)', advance='no') '='
+        end do
+
+        write(file_unit, '(/, A)') 'Debug'
+
+        do i = 1, 100
+            write(file_unit, '(A)', advance='no') '='
+        end do
+        write(file_unit, *)
+
+        ! Controls ********************************************************************************
+        write(file_unit, '(A9)', advance='no') 'Controls '
+
+        do i = 1, 91
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+
+        write(file_unit, 100) 'nno', nno
+        write(file_unit, 100) 'nel', nel
+        write(file_unit, 100) 'ndofn', ndofn
+        write(file_unit, 100) 'nmat', ntm
+        write(file_unit, 100) 'nsec', nts
+        write(file_unit, 100) 'nccdesl', nccdesl
+        write(file_unit, 100) 'nnc', nnc
+        write(file_unit, 100) 'nsa', nsa
+        write(file_unit, '(1A6, ":", 1A10)') 'theory', theory
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Materials *******************************************************************************
+        write(file_unit, '(A10)', advance='no') 'Materials '
+        do i = 1, 90
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+
+        write(file_unit, '(1A4, 3A15)') 'Id', 'E', 'nu', 'rho'
+        do i = 1, ntm
+            write(file_unit, '(1I4, 1ES15.4, 3F15.4)') i, materials(i, :)
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Sections ********************************************************************************
+        write(file_unit, '(A9)', advance='no') 'SECTIONS '
+        do i = 1, 91
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+
+        write(int2str1, '(I0)') nsa*10 + 7
+        write(int2str2, '(I0)') nsa*10*2 + 4
+        write(file_unit, '(1A4, T7, 1A4, T' // int2str1 // ', 1A10, T' // int2str2 // ', 1A10)') &
+            'Id','Area', 'Shear Area', 'Inertia'
+        write(int2str1, '(I0)') nsa*3
+        do i = 1, nts
+
+            write(file_unit, '(1I4,' // int2str1 // 'ES10.2)') &
+                i, sections(i, 1, :), sections(i, 2, :),sections(i, 3, :)
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Nodes ***********************************************************************************
+        write(file_unit, '(A6)', advance='no') 'NODES '
+        do i = 1, 94
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+
+        write(file_unit, '(1A4, T5, 1A5, T10, 1A10)') 'Id', 'X', 'Y'
+        do i = 1, nno
+            write(file_unit, '(1I4, 2F10.4)') i, nodes(i, :)
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Bars ************************************************************************************
+        write(file_unit, '(A5)', advance='no') 'BARS '
+        do i = 1, 95
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+
+        write(file_unit, '(1A4, 4A15)') 'id', 'Material', 'Section', 'Start Node', 'End Node'
+        do i = 1, nel
+            write(file_unit, '(1I4, 4I15)') i, bars(i, :)
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Boundaries ******************************************************************************
+        write(file_unit, '(A7)', advance='no') 'Bounds '
+        do i = 1, 93
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+
+        write(file_unit, '(1A4, *(A7))', advance='no') 'Id', 'node', 'Dx', 'Dy', 'Rz'
+        write(file_unit, '(*(A20))') 'Dx', 'Dy', 'Rz'
+        do i = 1, nccdesl
+            write(file_unit, '(1I4, 1I7, 1L7)', advance='no') i, nnr(i)
+            write(file_unit, '(*(L7))', advance='no') itydisp(i, :)
+            write(file_unit, '(*(F20.4))', advance='no') disp(i, :)
+            write(file_unit, *)
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Nodal Loads *****************************************************************************
+        write(file_unit, '(A6)', advance='no') 'Loads '
+        do i = 1, 94
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+
+        write(file_unit, '(1A4, 1A7, *(A10))') 'Id', 'node', 'Fx', 'Fy', 'Mz'
+        do i = 1, nnc
+            write(file_unit, '(1I4, 1I7, *(F10.2))') i, nnoc(i), ccno(i, :)
+            write(file_unit, *)
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Local Stiffness Matrix ******************************************************************
+        write(file_unit, '(A17)', advance='no') 'Stiffness Matrix '
+        do i = 1, 83
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+
+        do id = 1, nel
+            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
+            do i = 1, 2 * ndofn
+                do j = 1, 2 * ndofn
+                    if (abs(kl(id, i, j)) < tolerance) then
+                        write(file_unit, '(ES15.4)', advance='no') 0.0d0
+                    else
+                        write(file_unit, '(ES15.4)', advance='no') kl(id, i, j)
+                    end if
+                end do
+                write(file_unit, *)
+            end do
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Rot Matrix ******************************************************************************
+        write(file_unit, '(A16)', advance='no') 'Rotation Matrix '
+        do i = 1, 84
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do id = 1, nel
+            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
+            do i = 1, 2 * ndofn
+                do j = 1, 2 * ndofn
+                    if (abs(rot(id, i, j)) < tolerance) then
+                        write(file_unit, '(F10.4)', advance='no') 0.0d0
+                    else
+                        write(file_unit, '(F10.4)', advance='no') rot(id, i, j)
+                    end if
+                end do
+                write(file_unit, *)
+            end do
+        end do
+        write(file_unit, *)
+
+        ! Element Reactions ***********************************************************************
+        write(file_unit, '(A18)', advance='no') 'Element Reactions '
+        do i = 1, 82
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do id = 1, nel
+            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
+            write(file_unit, '(*(ES15.4))') El_reactions(id, :)
+
+            if (id /= nel) then
+                write(file_unit, *)
+            end if
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Element Efforts *************************************************************************
+        write(file_unit, '(A16)', advance='no') 'Element Efforts '
+        do i = 1, 84
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do id = 1, nel
+            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
+            write(file_unit, '(*(ES15.4))') Eff(id, :)
+
+            if (id /= nel) then
+                write(file_unit, *)
+            end if
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Global Matrix ***************************************************************************
+        write(file_unit, '(A14)', advance='no') 'Global Matrix '
+        do i = 1, 87
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do i = 1, nno*ndofn
+            do j = 1, nno*ndofn
+                if (abs(Kwb(i, j)) < tolerance) then
+                    write(file_unit, '(ES10.2)', advance='no') 0.0d0
+                else
+                    write(file_unit, '(ES10.2)', advance='no') Kwb(i, j)
+                end if
+            end do
+            write(file_unit, *)
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Load Vector *****************************************************************************
+        write(file_unit, '(A11)', advance='no') 'Lad Vector '
+        do i = 1, 89
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do i = 1, nno*ndofn
+            if (abs(Fwb(i)) < tolerance) then
+                write(file_unit, '(ES10.2)', advance='no') 0.0d0
+            else
+                write(file_unit, '(ES10.2)', advance='no') Fwb(i)
+            end if
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Displacements ***************************************************************************
+        write(file_unit, '(A14)', advance='no') 'Displacements '
+        do i = 1, 86
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do i = 1, nno*ndofn
+            if (abs(D(i)) < tolerance) then
+                write(file_unit, '(ES13.4)', advance='no') 0.0d0
+            else
+                write(file_unit, '(ES13.4)', advance='no') D(i)
+            end if
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+        write(file_unit, *)
+
+        ! Reactions *******************************************************************************
+        write(file_unit, '(A10)', advance='no') 'Reactions '
+        do i = 1, 90
+            write(file_unit, '(A1)', advance='no') '/'
+        end do
+        write(file_unit, *)
+        do i = 1, nno*ndofn
+            if (abs(reactions(i)) < tolerance) then
+                write(file_unit, '(ES13.4)', advance='no') 0.0d0
+            else
+                write(file_unit, '(ES13.4)', advance='no') reactions(i)
+            end if
+        end do
+        write(file_unit, *)
+        write(file_unit, *)
+        write(file_unit, *)
+    end subroutine save_results
 end module StructureData
