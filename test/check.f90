@@ -1,5 +1,6 @@
 program check
-implicit none
+    ! use iso_fortran_env, only: error_unit
+    ! implicit none
 
-print *, "Put some tests in here!"
+    ! write(error_unit, *) 'tests'
 end program check
