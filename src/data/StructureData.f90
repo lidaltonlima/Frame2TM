@@ -276,14 +276,16 @@ contains
         close(file_unit)
     end subroutine get_structure_data
 
-    subroutine save_results(tolerance, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
+    subroutine save_results(disp_tol, force_tol, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
         materials, sections, nodes, bars, &
         nccdesl, nnr, itydisp, disp, nnoc, ccno, &
-        kl, rot, reactions, El_reactions, Eff, Kwb, Fwb, D)
-        real(real64), intent(in) :: tolerance
+        kl, rot, reactions, El_reactions, Eff, kc, fc, dc)
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
+        real(real64), intent(in) :: disp_tol
+        real(real64), intent(in) :: force_tol
+
         integer, intent(in) :: nno  ! number of nodes
         integer, intent(in) :: nel  ! number of elements
         integer, intent(in) :: ndofn  ! number of degrees of freedom per node
@@ -313,9 +315,9 @@ contains
         real(real64), intent(in) :: El_reactions(:, :)  ! elements reactions
         real(real64), intent(in) :: Eff(:, :)  ! elements efforts
 
-        real(real64), intent(in) :: Kwb(:, :)  ! stiffness matrix without boundary condiciones
-        real(real64), intent(in) :: Fwb(:)
-        real(real64), intent(in) :: D(:)  ! Displacements
+        real(real64), intent(in) :: kc(:, :)  ! stiffness matrix without boundary condiciones
+        real(real64), intent(in) :: fc(:)
+        real(real64), intent(in) :: dc(:)  ! Displacements
 
         ! File ************************************************************************************
         integer :: file_unit  ! Unit to file
@@ -468,7 +470,7 @@ contains
             write(file_unit, '(1A9, 1I4)') 'Element: ', id
             do i = 1, 2 * ndofn
                 do j = 1, 2 * ndofn
-                    if (abs(kl(id, i, j)) < tolerance) then
+                    if (abs(kl(id, i, j)) < disp_tol) then
                         write(file_unit, '(ES11.2)', advance='no') 0.0d0
                     else
                         write(file_unit, '(ES11.2)', advance='no') kl(id, i, j)
@@ -490,7 +492,7 @@ contains
             write(file_unit, '(1A9, 1I4)') 'Element: ', id
             do i = 1, 2 * ndofn
                 do j = 1, 2 * ndofn
-                    if (abs(rot(id, i, j)) < tolerance) then
+                    if (abs(rot(id, i, j)) < disp_tol) then
                         write(file_unit, '(F7.2)', advance='no') 0.0d0
                     else
                         write(file_unit, '(F7.2)', advance='no') rot(id, i, j)
@@ -510,7 +512,18 @@ contains
 
         write(file_unit, '(1A7, *(A15))') 'Element', 'RNxi', 'RNyi', 'RMzi', 'RNxj', 'RNyj', 'RMzj'
         do id = 1, nel
-            write(file_unit, '(1I7, *(ES15.4))') id, El_reactions(id, :)
+            write(file_unit, '(1I7)', advance='no') id
+
+            do j = 1, 2*ndofn
+                if (abs(El_reactions(id, j)) < force_tol) then
+                    write(file_unit, '(*(ES15.4))', advance='no') 0.0d0
+                else
+                    write(file_unit, '(*(ES15.4))', advance='no') El_reactions(id, j)
+                end if
+            end do
+            write(file_unit, *)
+
+            ! write(file_unit, '(1I7, *(ES15.4))') id, El_reactions(id, :)
         end do
         write(file_unit, *)
         write(file_unit, *)
@@ -524,7 +537,16 @@ contains
 
         write(file_unit, '(1A7, *(A15))') 'Element', 'Ni', 'Vi', 'Mi', 'Nf', 'Vf', 'Mf'
         do id = 1, nel
-            write(file_unit, '(1I7, *(ES15.4))') id, Eff(id, :)
+            write(file_unit, '(1I7)', advance='no') id
+
+            do j = 1, 2*ndofn
+                if (abs(Eff(id, j)) < force_tol) then
+                    write(file_unit, '(*(ES15.4))', advance='no') 0.0d0
+                else
+                    write(file_unit, '(*(ES15.4))', advance='no') Eff(id, j)
+                end if
+            end do
+            write(file_unit, *)
         end do
         write(file_unit, *)
         write(file_unit, *)
@@ -537,10 +559,10 @@ contains
         write(file_unit, *)
         do i = 1, nno*ndofn
             do j = 1, nno*ndofn
-                if (abs(Kwb(i, j)) < tolerance) then
+                if (abs(kc(i, j)) < disp_tol) then
                     write(file_unit, '(ES10.2)', advance='no') 0.0d0
                 else
-                    write(file_unit, '(ES10.2)', advance='no') Kwb(i, j)
+                    write(file_unit, '(ES10.2)', advance='no') kc(i, j)
                 end if
             end do
             write(file_unit, *)
@@ -555,10 +577,10 @@ contains
         end do
         write(file_unit, *)
         do i = 1, nno*ndofn
-            if (abs(Fwb(i)) < tolerance) then
+            if (abs(fc(i)) < disp_tol) then
                 write(file_unit, '(ES10.2)', advance='no') 0.0d0
             else
-                write(file_unit, '(ES10.2)', advance='no') Fwb(i)
+                write(file_unit, '(ES10.2)', advance='no') fc(i)
             end if
         end do
         write(file_unit, *)
@@ -578,10 +600,10 @@ contains
 
             do dir = 1, ndofn
                 i_dir = (ndofn * (i - 1)) + dir
-                if (abs(D(i_dir)) < tolerance) then
+                if (abs(dc(i_dir)) < disp_tol) then
                     write(file_unit, '(ES13.4)', advance='no') 0.0d0
                 else
-                    write(file_unit, '(ES13.4)', advance='no') D(i_dir)
+                    write(file_unit, '(ES13.4)', advance='no') dc(i_dir)
                 end if
             end do
             write(file_unit, *)
@@ -602,7 +624,7 @@ contains
             do dir = 1, ndofn
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
 
-                if (abs(reactions(i_dir)) < tolerance) then
+                if (abs(reactions(i_dir)) < force_tol) then
                     write(file_unit, '(ES13.4)', advance='no') 0.0d0
                 else
                     write(file_unit, '(ES13.4)', advance='no') reactions(i_dir)

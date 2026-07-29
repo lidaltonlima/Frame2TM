@@ -13,7 +13,8 @@ program main
     ! Vars statement
     ! =============================================================================================
     ! Structure data ******************************************************************************
-    real(real64), parameter :: tolerance = 1.0d-15  ! tolerance to zero number
+    real(real64), parameter :: disp_tol = 1.0d-15  ! tolerance to zero number
+    real(real64), parameter :: force_tol = 1.0d-5  ! tolerance to zero number
 
     ! Structure data ******************************************************************************
     integer :: nno  ! number of nodes
@@ -86,7 +87,7 @@ program main
     ! =============================================================================================
     ! Show and save values
     ! =============================================================================================
-    call save_results(tolerance, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
+    call save_results(disp_tol, force_tol, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
         materials, sections, nodes, bars, nccdesl, nnr, itydisp, disp, nnoc, ccno, &
         kl, rot_mat, reactions, el_reactions, eff, kc, fc, dc)
 end program main
