@@ -19,17 +19,16 @@ module Stiffness
 
     real(8), allocatable :: el_px(:)  ! Points of sample sections
 contains
-    subroutine calc_kl(kl, nel, nsa, ndofn, theory, materials, sections, nodes, bars)
+    subroutine calc_kl(kl, nel, nsa, theory, materials, sections, nodes, bars)
         ! Calculate the stiffness matrix local for all elements
 
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
         ! I/O *************************************************************************************
-        real(8), allocatable, intent(out):: kl(:, :, :) ! stiffness matrix
+        real(8), intent(inout):: kl(:, :, :) ! stiffness matrix
         integer, intent(in) :: nel  ! number of elements
         integer, intent(in) :: nsa  ! number of sample sections
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
 
         real(8), intent(in) :: materials(:, :)
         real(8), intent(in) :: sections(:, :, :)
@@ -50,7 +49,6 @@ contains
         real(8) :: AFF(3, 3)
         real(8) :: EII(3, 3)
 
-        integer :: kl_dim  ! Dimension of stiffness matrix element
         real(8) :: dx, dy  ! Delta x and delta y
         real(8) :: step  ! Step to get sections samples
         integer :: index
@@ -58,9 +56,6 @@ contains
         ! =========================================================================================
         ! Initialization
         ! =========================================================================================
-
-        kl_dim = 2 * ndofn  ! 2 nodes per element
-
         if (nsa < 2) then
             error stop 'get_kl requires nsa >= 2'
         end if
@@ -73,7 +68,6 @@ contains
         ! =========================================================================================
         ! Calculation
         ! =========================================================================================
-        allocate(kl(nel, kl_dim, kl_dim))
         theory_g = theory
 
         kl = 0d0

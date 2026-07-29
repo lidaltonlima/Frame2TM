@@ -10,15 +10,15 @@ contains
         ! I/O *************************************************************************************
         integer, intent(in) :: nno  ! Number of nodes
         integer, intent(in) :: nnc  ! Number of nodes with point load
-        integer, intent(in):: ndofn  ! Number of degrees of freedom per node
-        integer, allocatable, intent(in) :: nnoc(:)  ! index of node with load
-        real(8), allocatable, intent(in) :: ccno(:, :)  ! value of point load in node
-        integer :: nccdesl  ! Number of boundaries condition
-        integer, allocatable :: nnr(:)  ! index of bound node
-        logical, allocatable :: itydisp(:, :) ! type of bound
-        real(8), allocatable :: disp(:, :)  ! displacement value
-        real(8), allocatable :: K(:, :)  ! Global stiffness global
-        real(8), allocatable :: F(:)  ! Vector of loads
+        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
+        integer, intent(in) :: nnoc(:)  ! index of node with load
+        real(8), intent(in) :: ccno(:, :)  ! value of point load in node
+        integer, intent(in) :: nccdesl  ! Number of boundaries condition
+        integer, intent(in) :: nnr(:)  ! index of bound node
+        logical, intent(in) :: itydisp(:, :) ! type of bound
+        real(8), intent(in) :: disp(:, :)  ! displacement value
+        real(8), intent(in) :: K(:, :)  ! Global stiffness global
+        real(8), intent(inout) :: F(:)  ! Vector of loads
 
         ! Aux *************************************************************************************
         integer :: i, dir  ! indices
@@ -30,7 +30,6 @@ contains
         ! Initialization
         ! =========================================================================================
         ! Allocation
-        allocate(F(nno*ndofn))
         allocate(Dp(nno*ndofn))
 
         F = 0d0

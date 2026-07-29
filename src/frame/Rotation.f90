@@ -6,7 +6,7 @@ module Rotation
 
     public :: calc_Rot
 contains
-    pure subroutine calc_Rot(rot, nel, ndofn, nodes, bars)
+    pure subroutine calc_Rot(rot, nel, nodes, bars)
         ! Calculate the rotation matrix
 
         ! =========================================================================================
@@ -14,10 +14,9 @@ contains
         ! =========================================================================================
         ! I/O *************************************************************************************
         integer, intent(in) :: nel  ! Number of elements
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         real(8), intent(in) :: nodes(:, :)
         integer, intent(in) :: bars(:, :)
-        real(8), allocatable, intent(out) :: rot(:, :, :) ! Matrix of rotation
+        real(8), intent(inout) :: rot(:, :, :) ! Matrix of rotation
 
         ! Auxiliaries *****************************************************************************
         integer :: id
@@ -26,12 +25,6 @@ contains
         real(8) :: x_vec(3)
         real(8) :: y_vec(3)
         real(8) :: z_vec(3)
-
-        ! =========================================================================================
-        ! Initialization
-        ! =========================================================================================
-        ! Allocation
-        allocate(rot(nel, 2 * ndofn, 2 * ndofn))
 
         ! =========================================================================================
         ! Calculation

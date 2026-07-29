@@ -4,22 +4,23 @@ module Displacements
 
     public :: calc_D
 contains
-    subroutine calc_D(K, D, F, nccdesl, nnr, itydisp, ndofn, dim, disp)
+    subroutine calc_D(D, K, F, nccdesl, nnr, itydisp, ndofn, dim, disp)
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
         ! I/O *************************************************************************************
+        real(8), intent(inout) :: D(:)  ! displacements
+
+        real(8), intent(in) :: K(:, :)  ! Global stiffness global
+        real(8), intent(in) :: F(:)  ! Vector of loads
+
         integer, intent(in) :: nccdesl  ! Number of boundaries condition
-        integer, allocatable, intent(in) :: nnr(:)  ! index of bound node
-        logical, allocatable, intent(in) :: itydisp(:, :) ! type of bound
-        real(8), allocatable, intent(in) :: disp(:, :)  ! displacement value
+        integer, intent(in) :: nnr(:)  ! index of bound node
+        logical, intent(in) :: itydisp(:, :) ! type of bound
+        real(8), intent(in) :: disp(:, :)  ! displacement value
 
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         integer, intent(in) :: dim  ! dimension of matrices and vectors
-
-        real(8), allocatable, intent(inout) :: K(:, :)  ! Global stiffness global
-        real(8), allocatable, intent(inout) :: D(:)  ! displacements
-        real(8), allocatable :: F(:)  ! Vector of loads
 
         ! Aux *************************************************************************************
         integer :: i, dir  ! indices
@@ -63,6 +64,8 @@ contains
         ! Solution the system *********************************************************************
         D = F_aux
         call dposv('U', dim, 1, K_Aux, dim, D, dim, info)
+
+        if (info /= 0) error stop 'DPOSV - calc_D - Displacements: solution system.'
 
         ! Sum the prescribed displacement *********************************************************
         do i = 1, nccdesl

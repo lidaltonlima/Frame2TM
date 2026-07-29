@@ -49,6 +49,7 @@ program main
 
     ! Aux *****************************************************************************************
     integer :: dim  ! dimension of matrices and vectors
+    integer :: el_dim  ! dimension of matrices and vectors
 
     ! =============================================================================================
     ! Initialization
@@ -59,22 +60,27 @@ program main
         materials, sections, nodes, bars)
 
     dim = nno * ndofn
+    el_dim = 2 * ndofn
 
+    allocate(K(dim, dim))
     allocate(D(dim))
+    allocate(F(dim))
     allocate(reactions(dim))
-    allocate(El_reactions(nel, 2*ndofn))
-    allocate(Eff(nel, 2*ndofn))
+    allocate(El_reactions(nel, el_dim))
+    allocate(Eff(nel, el_dim))
+    allocate(rot(nel, el_dim, el_dim))
+    allocate(kl(nel, el_dim, el_dim))
 
     ! =============================================================================================
     ! Calculation
     ! =============================================================================================
-    call calc_kl(kl, nel, nsa, ndofn, theory, materials, sections, nodes, bars)
-    call calc_Rot(rot, nel, ndofn, nodes, bars)
+    call calc_kl(kl, nel, nsa, theory, materials, sections, nodes, bars)
+    call calc_Rot(rot, nel, nodes, bars)
     call calc_K(K, nno, nel, ndofn, bars, kl, rot)
     call calc_F(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
-    call calc_D(K, D, F, nccdesl, nnr, itydisp, ndofn, dim, disp)
-    call calc_reactions(reactions, K, D, F, nccdesl, nnr, itydisp, disp, ndofn, nno)
-    call calc_el_reactions(El_reactions, nel, ndofn, bars, kl, rot, D)
+    call calc_D(D, K, F, nccdesl, nnr, itydisp, ndofn, dim, disp)
+    call calc_reactions(reactions, K, D, F, nccdesl, nnr, itydisp, disp, ndofn, dim)
+    call calc_el_reactions(El_reactions, nel, ndofn, bars, kl, rot, D, el_dim)
     call calc_efforts(Eff, El_reactions, bars, nodes, nel)
 
     ! =============================================================================================

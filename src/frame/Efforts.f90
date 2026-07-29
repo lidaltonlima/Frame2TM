@@ -5,10 +5,10 @@ module Efforts
 contains
     subroutine calc_efforts(Eff, El_reactions, bars, nodes, nel)
         ! I/O *************************************************************************************
-        real(8), allocatable, intent(inout) :: Eff(:, :)  ! elements efforts
-        real(8), allocatable, intent(in) :: El_reactions(:, :)  ! elements reactions
-        real(8), allocatable, intent(in) :: nodes(:, :)
-        integer, allocatable, intent(in) :: bars(:, :)
+        real(8), intent(inout) :: Eff(:, :)  ! elements efforts
+        real(8), intent(in) :: El_reactions(:, :)  ! elements reactions
+        real(8), intent(in) :: nodes(:, :)
+        integer, intent(in) :: bars(:, :)
         integer, intent(in) :: nel  ! Number of elements
 
         ! Aux *************************************************************************************

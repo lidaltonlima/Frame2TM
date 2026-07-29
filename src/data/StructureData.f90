@@ -296,29 +296,29 @@ contains
         integer, intent(in) :: nsa  ! Number of sample sections
         character(2), intent(in) :: theory ! Theory used
 
-        real(8), allocatable, intent(in) :: materials(:, :)
-        real(8), allocatable, intent(in) :: sections(:, :, :)
-        real(8), allocatable, intent(in) :: nodes(:, :)
-        integer, allocatable, intent(in) :: bars(:, :)
+        real(8), intent(in) :: materials(:, :)
+        real(8), intent(in) :: sections(:, :, :)
+        real(8), intent(in) :: nodes(:, :)
+        integer, intent(in) :: bars(:, :)
 
         integer, intent(in) :: nccdesl  ! Number of boundaries condition
-        integer, allocatable, intent(in) :: nnr(:)  ! index of bound node
-        logical, allocatable, intent(in) :: itydisp(:, :) ! type of bound
-        real(8), allocatable, intent(in) :: disp(:, :)  ! displacement value
+        integer, intent(in) :: nnr(:)  ! index of bound node
+        logical, intent(in) :: itydisp(:, :) ! type of bound
+        real(8), intent(in) :: disp(:, :)  ! displacement value
 
-        integer, allocatable, intent(in) :: nnoc(:)  ! index of node with load
-        real(8), allocatable, intent(in) :: ccno(:, :)  ! value of point load in node
+        integer, intent(in) :: nnoc(:)  ! index of node with load
+        real(8), intent(in) :: ccno(:, :)  ! value of point load in node
 
-        real(8), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix
-        real(8), allocatable, intent(in) :: rot(:, :, :)  ! Matrix of rotation
+        real(8), intent(in) :: kl(:, :, :)  ! Stiffness matrix
+        real(8), intent(in) :: rot(:, :, :)  ! Matrix of rotation
 
-        real(8), allocatable, intent(in) :: reactions(:)  ! reactions
-        real(8), allocatable, intent(in) :: El_reactions(:, :)  ! elements reactions
-        real(8), allocatable, intent(in) :: Eff(:, :)  ! elements efforts
+        real(8), intent(in) :: reactions(:)  ! reactions
+        real(8), intent(in) :: El_reactions(:, :)  ! elements reactions
+        real(8), intent(in) :: Eff(:, :)  ! elements efforts
 
-        real(8), allocatable, intent(in) :: Kwb(:, :)  ! stiffness matrix without boundary condiciones
-        real(8), allocatable, intent(in) :: Fwb(:)
-        real(8), allocatable, intent(in) :: D(:)  ! Displacements
+        real(8), intent(in) :: Kwb(:, :)  ! stiffness matrix without boundary condiciones
+        real(8), intent(in) :: Fwb(:)
+        real(8), intent(in) :: D(:)  ! Displacements
 
         ! File ************************************************************************************
         integer :: file_unit  ! Unit to file
