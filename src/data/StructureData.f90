@@ -284,13 +284,13 @@ contains
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        integer, intent(in) :: nno  ! Number of nodes
-        integer, intent(in) :: nel  ! Number of elements
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
-        integer, intent(in) :: ntm  ! Number of materials
-        integer, intent(in) :: nts  ! Number of sections
-        integer, intent(in) :: nnc  ! Number of nodes with point load
-        integer, intent(in) :: nsa  ! Number of sample sections
+        integer, intent(in) :: nno  ! number of nodes
+        integer, intent(in) :: nel  ! number of elements
+        integer, intent(in) :: ndofn  ! number of degrees of freedom per node
+        integer, intent(in) :: ntm  ! number of materials
+        integer, intent(in) :: nts  ! number of sections
+        integer, intent(in) :: nnc  ! number of nodes with point load
+        integer, intent(in) :: nsa  ! number of sample sections
         character(2), intent(in) :: theory ! Theory used
 
         real(real64), intent(in) :: materials(:, :)
@@ -324,6 +324,8 @@ contains
         character(10) :: int2str1
         character(10) :: int2str2
         integer :: i, j, id ! index
+        integer :: dir  ! direction degree
+        integer :: i_dir  ! index of direction degree
 
         call save_data_file('results', file_unit)
 
@@ -432,12 +434,10 @@ contains
         end do
         write(file_unit, *)
 
-        write(file_unit, '(1A4, *(A7))', advance='no') 'Id', 'node', 'Dx', 'Dy', 'Rz'
-        write(file_unit, '(*(A20))') 'Dx', 'Dy', 'Rz'
+        write(file_unit, '(1A4, *(A10))') 'Id', 'node', 'Dx', 'Dy', 'Rz', 'Dx', 'Dy', 'Rz'
         do i = 1, nccdesl
-            write(file_unit, '(1I4, 1I7, 1L7)', advance='no') i, nnr(i)
-            write(file_unit, '(*(L7))', advance='no') itydisp(i, :)
-            write(file_unit, '(*(F20.4))', advance='no') disp(i, :)
+            write(file_unit, '(1I4, 1I10, *(L10))', advance='no') i, nnr(i), itydisp(i, :)
+            write(file_unit, '(*(F10.4))', advance='no') disp(i, :)
             write(file_unit, *)
         end do
         write(file_unit, *)
@@ -450,10 +450,9 @@ contains
         end do
         write(file_unit, *)
 
-        write(file_unit, '(1A4, 1A7, *(A10))') 'Id', 'node', 'Fx', 'Fy', 'Mz'
+        write(file_unit, '(1A4, 1A7, *(A13))') 'Id', 'node', 'Fx', 'Fy', 'Mz'
         do i = 1, nnc
-            write(file_unit, '(1I4, 1I7, *(F10.2))') i, nnoc(i), ccno(i, :)
-            write(file_unit, *)
+            write(file_unit, '(1I4, 1I7, *(ES13.4))') i, nnoc(i), ccno(i, :)
         end do
         write(file_unit, *)
         write(file_unit, *)
@@ -466,13 +465,13 @@ contains
         write(file_unit, *)
 
         do id = 1, nel
-            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
+            write(file_unit, '(1A9, 1I4)') 'Element: ', id
             do i = 1, 2 * ndofn
                 do j = 1, 2 * ndofn
                     if (abs(kl(id, i, j)) < tolerance) then
-                        write(file_unit, '(ES15.4)', advance='no') 0.0d0
+                        write(file_unit, '(ES11.2)', advance='no') 0.0d0
                     else
-                        write(file_unit, '(ES15.4)', advance='no') kl(id, i, j)
+                        write(file_unit, '(ES11.2)', advance='no') kl(id, i, j)
                     end if
                 end do
                 write(file_unit, *)
@@ -488,13 +487,13 @@ contains
         end do
         write(file_unit, *)
         do id = 1, nel
-            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
+            write(file_unit, '(1A9, 1I4)') 'Element: ', id
             do i = 1, 2 * ndofn
                 do j = 1, 2 * ndofn
                     if (abs(rot(id, i, j)) < tolerance) then
-                        write(file_unit, '(F10.4)', advance='no') 0.0d0
+                        write(file_unit, '(F7.2)', advance='no') 0.0d0
                     else
-                        write(file_unit, '(F10.4)', advance='no') rot(id, i, j)
+                        write(file_unit, '(F7.2)', advance='no') rot(id, i, j)
                     end if
                 end do
                 write(file_unit, *)
@@ -508,13 +507,10 @@ contains
             write(file_unit, '(A1)', advance='no') '/'
         end do
         write(file_unit, *)
-        do id = 1, nel
-            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
-            write(file_unit, '(*(ES15.4))') El_reactions(id, :)
 
-            if (id /= nel) then
-                write(file_unit, *)
-            end if
+        write(file_unit, '(1A7, *(A15))') 'Element', 'RNxi', 'RNyi', 'RMzi', 'RNxj', 'RNyj', 'RMzj'
+        do id = 1, nel
+            write(file_unit, '(1I7, *(ES15.4))') id, El_reactions(id, :)
         end do
         write(file_unit, *)
         write(file_unit, *)
@@ -525,13 +521,10 @@ contains
             write(file_unit, '(A1)', advance='no') '/'
         end do
         write(file_unit, *)
-        do id = 1, nel
-            write(file_unit, '(1A13, 1I4)') 'Element ID: ', id
-            write(file_unit, '(*(ES15.4))') Eff(id, :)
 
-            if (id /= nel) then
-                write(file_unit, *)
-            end if
+        write(file_unit, '(1A7, *(A15))') 'Element', 'Ni', 'Vi', 'Mi', 'Nf', 'Vf', 'Mf'
+        do id = 1, nel
+            write(file_unit, '(1I7, *(ES15.4))') id, Eff(id, :)
         end do
         write(file_unit, *)
         write(file_unit, *)
@@ -578,15 +571,21 @@ contains
             write(file_unit, '(A1)', advance='no') '/'
         end do
         write(file_unit, *)
-        do i = 1, nno*ndofn
-            if (abs(D(i)) < tolerance) then
-                write(file_unit, '(ES13.4)', advance='no') 0.0d0
-            else
-                write(file_unit, '(ES13.4)', advance='no') D(i)
-            end if
+
+        write(file_unit, '(1A4, *(A13))') 'Node', 'Dx', 'Dy', 'Rz'
+        do i = 1, nno
+            write(file_unit, '(1I4)', advance='no') i
+
+            do dir = 1, ndofn
+                i_dir = (ndofn * (i - 1)) + dir
+                if (abs(D(i_dir)) < tolerance) then
+                    write(file_unit, '(ES13.4)', advance='no') 0.0d0
+                else
+                    write(file_unit, '(ES13.4)', advance='no') D(i_dir)
+                end if
+            end do
+            write(file_unit, *)
         end do
-        write(file_unit, *)
-        write(file_unit, *)
         write(file_unit, *)
 
         ! Reactions *******************************************************************************
@@ -595,14 +594,23 @@ contains
             write(file_unit, '(A1)', advance='no') '/'
         end do
         write(file_unit, *)
-        do i = 1, nno*ndofn
-            if (abs(reactions(i)) < tolerance) then
-                write(file_unit, '(ES13.4)', advance='no') 0.0d0
-            else
-                write(file_unit, '(ES13.4)', advance='no') reactions(i)
-            end if
+
+        write(file_unit, '(1A4, *(A13))') 'Node', 'RNx', 'RNy', 'RMz'
+        do i = 1, nccdesl
+            write(file_unit, '(1I4)', advance='no') nnr(i)
+
+            do dir = 1, ndofn
+                i_dir = (ndofn * (nnr(i) - 1)) + dir
+
+                if (abs(reactions(i_dir)) < tolerance) then
+                    write(file_unit, '(ES13.4)', advance='no') 0.0d0
+                else
+                    write(file_unit, '(ES13.4)', advance='no') reactions(i_dir)
+                end if
+            end do
+            write(file_unit, *)
         end do
-        write(file_unit, *)
+
         write(file_unit, *)
         write(file_unit, *)
     end subroutine save_results
