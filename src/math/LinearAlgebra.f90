@@ -1,4 +1,5 @@
 module LinearAlgebra
+    use iso_fortran_env, only: real64
     implicit none
     private
     public :: cross, inv, LagPol
@@ -11,9 +12,9 @@ contains
         ! Vars statement
         ! =========================================================================================
         ! I/O *************************************************************************************
-        real(8), intent(in) :: a(3)  ! first vector
-        real(8), intent(in) :: b(3)  ! second vector
-        real(8) :: c(3)  ! vector result of the cross product
+        real(real64), intent(in) :: a(3)  ! first vector
+        real(real64), intent(in) :: b(3)  ! second vector
+        real(real64) :: c(3)  ! vector result of the cross product
 
         ! =========================================================================================
         ! Calculation
@@ -30,14 +31,14 @@ contains
         ! Vars statement
         ! =========================================================================================
         ! I/O *************************************************************************************
-        real(8), intent(in) :: mat(:, :)
-        real(8), allocatable :: mat_inv(:, :)
+        real(real64), intent(in) :: mat(:, :)
+        real(real64), allocatable :: mat_inv(:, :)
 
         ! Auxiliary *******************************************************************************
         integer :: dim  ! dimension of the matrix
         integer :: info  ! error code (Lapack)
         integer, allocatable :: ipiv(:)  ! pivot for LU factorization (Lapack)
-        real(8), allocatable :: work(:)  ! work vector (Lapack)
+        real(real64), allocatable :: work(:)  ! work vector (Lapack)
 
         ! External functions (Lapack) *************************************************************
         external :: dgetrf  ! LU factorization
@@ -75,14 +76,14 @@ contains
         ! Vars statement
         ! =========================================================================================
         ! I/O *************************************************************************************
-        real(8), intent(in) :: px(:), py(:) ! Points for interpolation
-        real(8), intent(in) :: x ! Point for calculate
-        real(8) :: y
+        real(real64), intent(in) :: px(:), py(:) ! Points for interpolation
+        real(real64), intent(in) :: x ! Point for calculate
+        real(real64) :: y
 
         ! Aux *************************************************************************************
         integer :: n ! Number of points
         integer :: i, j ! Indexes for looping
-        real(8) :: lag ! Lagrangian Polynomial
+        real(real64) :: lag ! Lagrangian Polynomial
 
         ! =========================================================================================
         ! Vars initialization

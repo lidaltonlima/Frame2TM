@@ -1,4 +1,5 @@
 module Reactions
+    use iso_fortran_env, only: real64
     implicit none
     private
     public :: calc_reactions, calc_el_reactions
@@ -8,24 +9,24 @@ contains
         ! Vars Statements
         ! =========================================================================================
         ! I/O *************************************************************************************
-        real(8), intent(inout) :: reactions(:)  ! reactions
+        real(real64), intent(inout) :: reactions(:)  ! reactions
 
-        real(8), intent(in) :: K(:, :)
-        real(8), intent(in) :: D(:)  ! Displacements
-        real(8), intent(in) :: F(:)  ! Vector of loads
+        real(real64), intent(in) :: K(:, :)
+        real(real64), intent(in) :: D(:)  ! Displacements
+        real(real64), intent(in) :: F(:)  ! Vector of loads
 
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
 
         integer, intent(in) :: nnr(:)  ! index of bound node
         integer, intent(in) :: nccdesl  ! Number of boundaries condition
         logical, intent(in) :: itydisp(:, :) ! type of bound
-        real(8), intent(in) :: disp(:, :)  ! displacement value
+        real(real64), intent(in) :: disp(:, :)  ! displacement value
 
         integer, intent(in) :: dim  ! dimension of matrices and vectors
 
         ! Control *********************************************************************************
         integer :: i, j, dir, i_dir ! indexes
-        real(8) :: D_aux(dim)
+        real(real64) :: D_aux(dim)
 
 
         ! =========================================================================================
@@ -60,21 +61,21 @@ contains
         ! Vars Statements
         ! =========================================================================================
         ! I/O
-        real(8), intent(inout) :: El_reactions(:, :)  ! elements efforts
-        real(8), intent(in) :: D(:)  ! Displacements
-        real(8), intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
+        real(real64), intent(inout) :: El_reactions(:, :)  ! elements efforts
+        real(real64), intent(in) :: D(:)  ! Displacements
+        real(real64), intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
         integer, intent(in) :: nel  ! Number of elements
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         integer, intent(in) :: bars(:, :)
-        real(8), intent(in) :: rot(:, :, :)  ! Matrix of rotation
+        real(real64), intent(in) :: rot(:, :, :)  ! Matrix of rotation
         integer, intent(in) :: el_dim  ! dimension of matrices and vectors
 
         ! Aux
         integer :: i
         integer :: si, ei
         integer :: sf, ef
-        real(8) :: De(el_dim)
-        real(8) :: Del(el_dim)
+        real(real64) :: De(el_dim)
+        real(real64) :: Del(el_dim)
 
 
         do i = 1, nel

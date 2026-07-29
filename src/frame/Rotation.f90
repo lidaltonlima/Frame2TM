@@ -1,12 +1,13 @@
 module Rotation
+    use iso_fortran_env, only: real64
     use LinearAlgebra, only: cross
 
     implicit none
     private
 
-    public :: calc_Rot
+    public :: calc_rot_mat
 contains
-    pure subroutine calc_Rot(rot, nel, nodes, bars)
+    pure subroutine calc_rot_mat(rot, nel, nodes, bars)
         ! Calculate the rotation matrix
 
         ! =========================================================================================
@@ -14,17 +15,17 @@ contains
         ! =========================================================================================
         ! I/O *************************************************************************************
         integer, intent(in) :: nel  ! Number of elements
-        real(8), intent(in) :: nodes(:, :)
+        real(real64), intent(in) :: nodes(:, :)
         integer, intent(in) :: bars(:, :)
-        real(8), intent(inout) :: rot(:, :, :) ! Matrix of rotation
+        real(real64), intent(inout) :: rot(:, :, :) ! Matrix of rotation
 
         ! Auxiliaries *****************************************************************************
         integer :: id
-        real(8) :: e_vec(3)
-        real(8) :: n_vec(3)
-        real(8) :: x_vec(3)
-        real(8) :: y_vec(3)
-        real(8) :: z_vec(3)
+        real(real64) :: e_vec(3)
+        real(real64) :: n_vec(3)
+        real(real64) :: x_vec(3)
+        real(real64) :: y_vec(3)
+        real(real64) :: z_vec(3)
 
         ! =========================================================================================
         ! Calculation
@@ -62,5 +63,5 @@ contains
 
             rot(id, 4:, 4:) = rot(id, :3, :3)
         end do
-    end subroutine calc_Rot
+    end subroutine calc_rot_mat
 end module Rotation

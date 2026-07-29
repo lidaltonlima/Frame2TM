@@ -1,9 +1,10 @@
 program main
-    use StructureData, only: get_structure_data, save_data_file, save_results
-    use Stiffness, only: calc_kl, calc_K
-    use Rotation, only: calc_Rot
-    use Displacements, only: calc_D
-    use Loads, only: calc_F
+    use iso_fortran_env, only: real64
+    use StructureData, only: get_structure_data, save_results
+    use Stiffness, only: calc_kl, calc_kc
+    use Rotation, only: calc_rot_mat
+    use Displacements, only: calc_dc
+    use Loads, only: calc_fc
     use Reactions, only: calc_reactions, calc_el_reactions
     use Efforts, only: calc_efforts
     implicit none
@@ -12,7 +13,7 @@ program main
     ! Vars statement
     ! =============================================================================================
     ! Structure data ******************************************************************************
-    real(8), parameter :: tolerance = 1.0d-15  ! tolerance to zero number
+    real(real64), parameter :: tolerance = 1.0d-15  ! tolerance to zero number
 
     ! Structure data ******************************************************************************
     integer :: nno  ! number of nodes
@@ -24,28 +25,28 @@ program main
     integer :: nsa  ! number of sample sections
     character(2) :: theory ! Theory used
 
-    real(8), allocatable :: materials(:, :)
-    real(8), allocatable :: sections(:, :, :)
-    real(8), allocatable :: nodes(:, :)
+    real(real64), allocatable :: materials(:, :)
+    real(real64), allocatable :: sections(:, :, :)
+    real(real64), allocatable :: nodes(:, :)
     integer, allocatable :: bars(:, :)
 
     integer :: nccdesl  ! number of boundaries condition
     integer, allocatable :: nnr(:)  ! index of bound node
     logical, allocatable :: itydisp(:, :) ! type of bound
-    real(8), allocatable :: disp(:, :)  ! displacement value
+    real(real64), allocatable :: disp(:, :)  ! displacement value
 
     integer, allocatable :: nnoc(:)  ! index of node with load
-    real(8), allocatable :: ccno(:, :)  ! value of point load in node
+    real(real64), allocatable :: ccno(:, :)  ! value of point load in node
 
     ! Calculate data ******************************************************************************
-    real(8), allocatable :: kl(:, :, :)  ! stiffness matrix kl(element_id, i, j)
-    real(8), allocatable :: rot(:, :, :)  ! matrix of rotation
-    real(8), allocatable :: K(:, :)  ! global stiffness global
-    real(8), allocatable :: F(:)  ! vector of loads
-    real(8), allocatable :: D(:)  ! displacements
-    real(8), allocatable :: reactions(:)  ! reactions
-    real(8), allocatable :: El_reactions(:, :)  ! elements reactions
-    real(8), allocatable :: Eff(:, :)  ! elements efforts
+    real(real64), allocatable :: kl(:, :, :)  ! stiffness matrix kl(element_id, i, j)
+    real(real64), allocatable :: rot_mat(:, :, :)  ! matrix of rotation
+    real(real64), allocatable :: kc(:, :)  ! global stiffness global
+    real(real64), allocatable :: fc(:)  ! vector of loads
+    real(real64), allocatable :: dc(:)  ! displacements
+    real(real64), allocatable :: reactions(:)  ! reactions
+    real(real64), allocatable :: El_reactions(:, :)  ! elements reactions
+    real(real64), allocatable :: Eff(:, :)  ! elements efforts
 
     ! Aux *****************************************************************************************
     integer :: dim  ! dimension of matrices and vectors
@@ -62,25 +63,25 @@ program main
     dim = nno * ndofn
     el_dim = 2 * ndofn
 
-    allocate(K(dim, dim))
-    allocate(D(dim))
-    allocate(F(dim))
+    allocate(kc(dim, dim))
+    allocate(dc(dim))
+    allocate(fc(dim))
     allocate(reactions(dim))
     allocate(El_reactions(nel, el_dim))
     allocate(Eff(nel, el_dim))
-    allocate(rot(nel, el_dim, el_dim))
+    allocate(rot_mat(nel, el_dim, el_dim))
     allocate(kl(nel, el_dim, el_dim))
 
     ! =============================================================================================
     ! Calculation
     ! =============================================================================================
     call calc_kl(kl, nel, nsa, theory, materials, sections, nodes, bars)
-    call calc_Rot(rot, nel, nodes, bars)
-    call calc_K(K, nno, nel, ndofn, bars, kl, rot)
-    call calc_F(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
-    call calc_D(D, K, F, nccdesl, nnr, itydisp, ndofn, dim, disp)
-    call calc_reactions(reactions, K, D, F, nccdesl, nnr, itydisp, disp, ndofn, dim)
-    call calc_el_reactions(El_reactions, nel, ndofn, bars, kl, rot, D, el_dim)
+    call calc_rot_mat(rot_mat, nel, nodes, bars)
+    call calc_kc(kc, nno, nel, ndofn, bars, kl, rot_mat)
+    call calc_fc(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, kc, fc)
+    call calc_dc(dc, kc, fc, nccdesl, nnr, itydisp, ndofn, dim, disp)
+    call calc_reactions(reactions, kc, dc, fc, nccdesl, nnr, itydisp, disp, ndofn, dim)
+    call calc_el_reactions(El_reactions, nel, ndofn, bars, kl, rot_mat, dc, el_dim)
     call calc_efforts(Eff, El_reactions, bars, nodes, nel)
 
     ! =============================================================================================
@@ -88,5 +89,5 @@ program main
     ! =============================================================================================
     call save_results(tolerance, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
         materials, sections, nodes, bars, nccdesl, nnr, itydisp, disp, nnoc, ccno, &
-        kl, rot, reactions, El_reactions, Eff, K, F, D)
+        kl, rot_mat, reactions, El_reactions, Eff, kc, fc, dc)
 end program main

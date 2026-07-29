@@ -1,23 +1,24 @@
 module Displacements
+    use iso_fortran_env, only: real64
     implicit none
     private
 
-    public :: calc_D
+    public :: calc_dc
 contains
-    subroutine calc_D(D, K, F, nccdesl, nnr, itydisp, ndofn, dim, disp)
+    subroutine calc_dc(D, K, F, nccdesl, nnr, itydisp, ndofn, dim, disp)
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
         ! I/O *************************************************************************************
-        real(8), intent(inout) :: D(:)  ! displacements
+        real(real64), intent(inout) :: D(:)  ! displacements
 
-        real(8), intent(in) :: K(:, :)  ! Global stiffness global
-        real(8), intent(in) :: F(:)  ! Vector of loads
+        real(real64), intent(in) :: K(:, :)  ! Global stiffness global
+        real(real64), intent(in) :: F(:)  ! Vector of loads
 
         integer, intent(in) :: nccdesl  ! Number of boundaries condition
         integer, intent(in) :: nnr(:)  ! index of bound node
         logical, intent(in) :: itydisp(:, :) ! type of bound
-        real(8), intent(in) :: disp(:, :)  ! displacement value
+        real(real64), intent(in) :: disp(:, :)  ! displacement value
 
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         integer, intent(in) :: dim  ! dimension of matrices and vectors
@@ -25,8 +26,8 @@ contains
         ! Aux *************************************************************************************
         integer :: i, dir  ! indices
         integer :: i_dir  ! index of bound direction
-        real(8), allocatable :: K_aux(:, :)
-        real(8), allocatable :: F_aux(:)
+        real(real64), allocatable :: K_aux(:, :)
+        real(real64), allocatable :: F_aux(:)
 
         ! External ********************************************************************************
         external :: dposv  ! solve symmetric positive defined matrix system (Lapack)
@@ -77,5 +78,5 @@ contains
                 end if
             end do
         end do
-    end subroutine calc_D
+    end subroutine calc_dc
 end module Displacements

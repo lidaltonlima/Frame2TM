@@ -1,4 +1,5 @@
 module StructureData
+    use iso_fortran_env, only: real64
     implicit none
     private
     public :: get_structure_data, save_data_file, save_results
@@ -20,8 +21,8 @@ contains
 
         ! aux
         integer :: file_stat  ! State of file
-        character(30) :: file_error  ! Message to file error
-        character(30) :: file_path  ! Complete path to file
+        character(:), allocatable :: file_error  ! Message to file error
+        character(:), allocatable :: file_path  ! Complete path to file
 
         ! =========================================================================================
         ! Process
@@ -99,17 +100,17 @@ contains
         integer, intent(out) :: nsa  ! Number of sample sections
         character(2), intent(out) :: theory ! Theory used (EB: Euler-Bernoulli or TM: Timoshenko)
 
-        real(8), intent(out), allocatable :: materials(:, :)
-        real(8), intent(out), allocatable :: sections(:, :, :)
-        real(8), intent(out), allocatable :: nodes(:, :)
+        real(real64), intent(out), allocatable :: materials(:, :)
+        real(real64), intent(out), allocatable :: sections(:, :, :)
+        real(real64), intent(out), allocatable :: nodes(:, :)
         integer, intent(out), allocatable :: bars(:, :)
 
         integer, intent(out), allocatable :: nnr(:)  ! index of bound node
         logical, intent(out), allocatable :: itydisp(:, :) ! type of bound
-        real(8), intent(out), allocatable :: disp(:, :)  ! displacement value
+        real(real64), intent(out), allocatable :: disp(:, :)  ! displacement value
 
         integer, allocatable :: nnoc(:)  ! index of node with load
-        real(8), allocatable :: ccno(:, :)  ! value of point load in node
+        real(real64), allocatable :: ccno(:, :)  ! value of point load in node
 
         ! File
         integer :: file_unit  ! Unit to file
@@ -283,7 +284,7 @@ contains
         materials, sections, nodes, bars, &
         nccdesl, nnr, itydisp, disp, nnoc, ccno, &
         kl, rot, reactions, El_reactions, Eff, Kwb, Fwb, D)
-        real(8), intent(in) :: tolerance
+        real(real64), intent(in) :: tolerance
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
@@ -296,29 +297,29 @@ contains
         integer, intent(in) :: nsa  ! Number of sample sections
         character(2), intent(in) :: theory ! Theory used
 
-        real(8), intent(in) :: materials(:, :)
-        real(8), intent(in) :: sections(:, :, :)
-        real(8), intent(in) :: nodes(:, :)
+        real(real64), intent(in) :: materials(:, :)
+        real(real64), intent(in) :: sections(:, :, :)
+        real(real64), intent(in) :: nodes(:, :)
         integer, intent(in) :: bars(:, :)
 
         integer, intent(in) :: nccdesl  ! Number of boundaries condition
         integer, intent(in) :: nnr(:)  ! index of bound node
         logical, intent(in) :: itydisp(:, :) ! type of bound
-        real(8), intent(in) :: disp(:, :)  ! displacement value
+        real(real64), intent(in) :: disp(:, :)  ! displacement value
 
         integer, intent(in) :: nnoc(:)  ! index of node with load
-        real(8), intent(in) :: ccno(:, :)  ! value of point load in node
+        real(real64), intent(in) :: ccno(:, :)  ! value of point load in node
 
-        real(8), intent(in) :: kl(:, :, :)  ! Stiffness matrix
-        real(8), intent(in) :: rot(:, :, :)  ! Matrix of rotation
+        real(real64), intent(in) :: kl(:, :, :)  ! Stiffness matrix
+        real(real64), intent(in) :: rot(:, :, :)  ! Matrix of rotation
 
-        real(8), intent(in) :: reactions(:)  ! reactions
-        real(8), intent(in) :: El_reactions(:, :)  ! elements reactions
-        real(8), intent(in) :: Eff(:, :)  ! elements efforts
+        real(real64), intent(in) :: reactions(:)  ! reactions
+        real(real64), intent(in) :: El_reactions(:, :)  ! elements reactions
+        real(real64), intent(in) :: Eff(:, :)  ! elements efforts
 
-        real(8), intent(in) :: Kwb(:, :)  ! stiffness matrix without boundary condiciones
-        real(8), intent(in) :: Fwb(:)
-        real(8), intent(in) :: D(:)  ! Displacements
+        real(real64), intent(in) :: Kwb(:, :)  ! stiffness matrix without boundary condiciones
+        real(real64), intent(in) :: Fwb(:)
+        real(real64), intent(in) :: D(:)  ! Displacements
 
         ! File ************************************************************************************
         integer :: file_unit  ! Unit to file

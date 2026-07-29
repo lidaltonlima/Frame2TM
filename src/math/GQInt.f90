@@ -1,4 +1,5 @@
 module GQInt
+    use iso_fortran_env, only: real64
     ! (ENG-NA-001)
     ! Calculate numerical integral use Gauss Quadrature
     implicit none
@@ -14,11 +15,11 @@ contains
         ! =========================================================================================
         ! I/O *************************************************************************************
         integer, intent(in) :: n  ! Number of points
-        real(8), intent(in) :: a  ! Lower limit
-        real(8), intent(in) :: b  ! Upper limit
-        real(8) :: int ! Result of integration using Gauss Quadrature
-        real(8), allocatable :: t(:)  ! Root values
-        real(8), allocatable :: c(:)  ! Coefficients
+        real(real64), intent(in) :: a  ! Lower limit
+        real(real64), intent(in) :: b  ! Upper limit
+        real(real64) :: int ! Result of integration using Gauss Quadrature
+        real(real64), allocatable :: t(:)  ! Root values
+        real(real64), allocatable :: c(:)  ! Coefficients
 
         ! Aux *************************************************************************************
         integer :: i  ! Index
@@ -27,8 +28,9 @@ contains
         interface
             pure function f(x) result(y)
                 ! Function for integration
-                real(8), intent(in) :: x
-                real(8) :: y
+                import :: real64
+                real(real64), intent(in) :: x
+                real(real64) :: y
             end function f
         end interface
 
@@ -49,15 +51,15 @@ contains
         end do
     end function intGQ
 
-    pure real(8) function new_x(a, b, t) result(x)
+    pure real(real64) function new_x(a, b, t) result(x)
         ! Calculate the new value of x for new limits of integration
 
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
         ! I/O
-        real(8), intent(in) :: a, b ! Limits of integration
-        real(8), intent(in) :: t ! Value to transformation
+        real(real64), intent(in) :: a, b ! Limits of integration
+        real(real64), intent(in) :: t ! Value to transformation
 
         ! =========================================================================================
         ! Calculation
@@ -71,8 +73,8 @@ contains
         ! Statement ===================================================================================
         ! In-out variables
         integer, intent(in) :: n ! Number of points
-        real(8), intent(out) :: t(n) ! Roots
-        real(8), intent(out) :: c(n) ! Coefficients
+        real(real64), intent(out) :: t(n) ! Roots
+        real(real64), intent(out) :: c(n) ! Coefficients
 
         if(n ==  1)then
             t(  1) =    0.000000000000000

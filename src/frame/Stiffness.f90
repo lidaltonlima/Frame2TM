@@ -1,23 +1,24 @@
 module Stiffness
+    use iso_fortran_env, only: real64
     use GQint, only: intGQ
     use LinearAlgebra, only: inv, LagPol
 
     implicit none
     private
-    public :: calc_kl, calc_K
+    public :: calc_kl, calc_kc
 
     ! =============================================================================================
     ! Global vars
     ! =============================================================================================
-    real(8) :: E  ! elasticity module
-    real(8) :: G  ! shear elasticity module
-    real(8), allocatable :: A(:)  ! area
-    real(8), allocatable :: As(:)  ! shear area
-    real(8) :: L  ! length of element
-    real(8), allocatable :: Iz(:)  ! inertia
+    real(real64) :: E  ! elasticity module
+    real(real64) :: G  ! shear elasticity module
+    real(real64), allocatable :: A(:)  ! area
+    real(real64), allocatable :: As(:)  ! shear area
+    real(real64) :: L  ! length of element
+    real(real64), allocatable :: Iz(:)  ! inertia
     character(2) :: theory_g  ! theory used
 
-    real(8), allocatable :: el_px(:)  ! Points of sample sections
+    real(real64), allocatable :: el_px(:)  ! Points of sample sections
 contains
     subroutine calc_kl(kl, nel, nsa, theory, materials, sections, nodes, bars)
         ! Calculate the stiffness matrix local for all elements
@@ -26,13 +27,13 @@ contains
         ! Vars statement
         ! =========================================================================================
         ! I/O *************************************************************************************
-        real(8), intent(inout):: kl(:, :, :) ! stiffness matrix
+        real(real64), intent(inout):: kl(:, :, :) ! stiffness matrix
         integer, intent(in) :: nel  ! number of elements
         integer, intent(in) :: nsa  ! number of sample sections
 
-        real(8), intent(in) :: materials(:, :)
-        real(8), intent(in) :: sections(:, :, :)
-        real(8), intent(in) :: nodes(:, :)
+        real(real64), intent(in) :: materials(:, :)
+        real(real64), intent(in) :: sections(:, :, :)
+        real(real64), intent(in) :: nodes(:, :)
         integer, intent(in) :: bars(:, :)
 
         character(2), intent(in) :: theory
@@ -41,16 +42,16 @@ contains
         integer :: id   ! Index id
 
         ! Aux *************************************************************************************
-        real(8) :: fIi(3, 3)
-        real(8) :: fIf(3, 3)
-        real(8) :: fFi(3, 3)
-        real(8) :: fFf(3, 3)
-        real(8) :: AII(3, 3)
-        real(8) :: AFF(3, 3)
-        real(8) :: EII(3, 3)
+        real(real64) :: fIi(3, 3)
+        real(real64) :: fIf(3, 3)
+        real(real64) :: fFi(3, 3)
+        real(real64) :: fFf(3, 3)
+        real(real64) :: AII(3, 3)
+        real(real64) :: AFF(3, 3)
+        real(real64) :: EII(3, 3)
 
-        real(8) :: dx, dy  ! Delta x and delta y
-        real(8) :: step  ! Step to get sections samples
+        real(real64) :: dx, dy  ! Delta x and delta y
+        real(real64) :: step  ! Step to get sections samples
         integer :: index
 
         ! =========================================================================================
@@ -120,7 +121,7 @@ contains
         end do
     end subroutine
 
-    subroutine calc_K(K, nno, nel, ndofn, bars, kl, rot)
+    subroutine calc_kc(kc, nno, nel, ndofn, bars, kl, rot)
         ! Calculate the global stiffness matrix
 
         ! =========================================================================================
@@ -132,20 +133,20 @@ contains
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
 
         integer, allocatable :: bars(:, :)
-        real(8), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
-        real(8), allocatable, intent(in) :: rot(:, :, :)  ! Matrix of rotation
+        real(real64), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
+        real(real64), allocatable, intent(in) :: rot(:, :, :)  ! Matrix of rotation
 
-        real(8), allocatable, intent(out) :: K(:, :)  ! Global stiffness global
+        real(real64), allocatable, intent(out) :: kc(:, :)  ! Global stiffness global
 
         ! Auxiliaries
         integer :: element  ! index
 
-        allocate(K(nno*ndofn, nno*ndofn))
+        allocate(kc(nno*ndofn, nno*ndofn))
 
-        K = 0d0
+        kc = 0d0
 
         do element = 1, nel
-            call add_k(K, element, ndofn, kl, rot, bars)
+            call add_k(kc, element, ndofn, kl, rot, bars)
         end do
     end subroutine
 
@@ -156,13 +157,13 @@ contains
         ! I/O *************************************************************************************
         integer, intent(in) :: id  ! index of element
         integer, intent(in) :: ndofn  ! number of degrees of freedom per node
-        real(8), allocatable, intent(in) :: kl(:, :, :)  ! stiffness matrix of element
-        real(8), allocatable, intent(in) :: rot(:, :, :)  ! rotation matrix of element
+        real(real64), allocatable, intent(in) :: kl(:, :, :)  ! stiffness matrix of element
+        real(real64), allocatable, intent(in) :: rot(:, :, :)  ! rotation matrix of element
         integer, allocatable, intent(in) :: bars(:, :)
-        real(8), allocatable, intent(inout) :: K(:, :)  ! Global stiffness global
+        real(real64), allocatable, intent(inout) :: K(:, :)  ! Global stiffness global
 
         ! Auxiliaries *****************************************************************************
-        real(8), allocatable :: kg(:, :)  ! Stiffness matrix
+        real(real64), allocatable :: kg(:, :)  ! Stiffness matrix
         integer :: si, ei  ! indices position of start node
         integer :: sj, ej  ! indices position of start node
 
@@ -186,92 +187,92 @@ contains
     end subroutine add_k
 
     pure function ka(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = E * LagPol(el_px, A, x)
     end function ka
 
     pure function kb(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = E * LagPol(el_px, Iz, x)
     end function kb
 
     pure function ks(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = G * LagPol(el_px, As, x)
     end function ks
 
     pure function a11(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = 1 / ka(x)
     end function a11
 
     pure function a22(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = x**2 / kb(x) + merge(1 / ks(x), 0d0, theory_g == 'TM')
     end function a22
 
     pure function a23(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = -x / kb(x)
     end function a23
 
     pure function a32(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = -x / kb(x)
     end function a32
 
     pure function a33(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = 1 / kb(x)
     end function a33
 
     pure function a44(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = 1 / ka(x)
     end function a44
 
     pure function a55(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = (L - x)**2 / kb(x) + merge(1 / ks(x), 0d0, theory_g == 'TM')
     end function a55
 
     pure function a56(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = (L - x) / kb(x)
     end function a56
 
     pure function a65(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = (L - x) / kb(x)
     end function a65
 
     pure function a66(x) result(y)
-        real(8), intent(in) :: x
-        real(8) :: y
+        real(real64), intent(in) :: x
+        real(real64) :: y
 
         y = 1 / kb(x)
     end function a66

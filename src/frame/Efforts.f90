@@ -1,20 +1,21 @@
 module Efforts
+    use iso_fortran_env, only: real64
     implicit none
     private
     public :: calc_efforts
 contains
     subroutine calc_efforts(Eff, El_reactions, bars, nodes, nel)
         ! I/O *************************************************************************************
-        real(8), intent(inout) :: Eff(:, :)  ! elements efforts
-        real(8), intent(in) :: El_reactions(:, :)  ! elements reactions
-        real(8), intent(in) :: nodes(:, :)
+        real(real64), intent(inout) :: Eff(:, :)  ! elements efforts
+        real(real64), intent(in) :: El_reactions(:, :)  ! elements reactions
+        real(real64), intent(in) :: nodes(:, :)
         integer, intent(in) :: bars(:, :)
         integer, intent(in) :: nel  ! Number of elements
 
         ! Aux *************************************************************************************
         integer :: i  ! index
-        real(8) :: L  ! length
-        real(8) :: dx, dy
+        real(real64) :: L  ! length
+        real(real64) :: dx, dy
 
         ! =========================================================================================
         ! Calculation

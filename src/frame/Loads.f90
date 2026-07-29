@@ -1,9 +1,10 @@
 module Loads
+    use iso_fortran_env, only: real64
     implicit none
     private
-    public :: calc_F
+    public :: calc_fc
 contains
-    subroutine calc_F(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
+    subroutine calc_fc(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, K, F)
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
@@ -12,18 +13,18 @@ contains
         integer, intent(in) :: nnc  ! Number of nodes with point load
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
         integer, intent(in) :: nnoc(:)  ! index of node with load
-        real(8), intent(in) :: ccno(:, :)  ! value of point load in node
+        real(real64), intent(in) :: ccno(:, :)  ! value of point load in node
         integer, intent(in) :: nccdesl  ! Number of boundaries condition
         integer, intent(in) :: nnr(:)  ! index of bound node
         logical, intent(in) :: itydisp(:, :) ! type of bound
-        real(8), intent(in) :: disp(:, :)  ! displacement value
-        real(8), intent(in) :: K(:, :)  ! Global stiffness global
-        real(8), intent(inout) :: F(:)  ! Vector of loads
+        real(real64), intent(in) :: disp(:, :)  ! displacement value
+        real(real64), intent(in) :: K(:, :)  ! Global stiffness global
+        real(real64), intent(inout) :: F(:)  ! Vector of loads
 
         ! Aux *************************************************************************************
         integer :: i, dir  ! indices
         integer :: i_dir  ! index of bound direction
-        real(8), allocatable :: Dp(:)  ! Vector of loads
+        real(real64), allocatable :: Dp(:)  ! Vector of loads
 
 
         ! =========================================================================================
@@ -52,5 +53,5 @@ contains
         end do
 
         F = F - matmul(K, Dp)
-    end subroutine calc_F
+    end subroutine calc_fc
 end module Loads
