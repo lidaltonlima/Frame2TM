@@ -127,18 +127,18 @@ contains
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! I/O
+        ! I/O *************************************************************************************
         integer, intent(in) :: nno  ! Number of nodes
         integer, intent(in) :: nel  ! Number of elements
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
 
-        integer, allocatable :: bars(:, :)
+        integer, allocatable, intent(in) :: bars(:, :)
         real(real64), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
         real(real64), allocatable, intent(in) :: rot(:, :, :)  ! Matrix of rotation
 
         real(real64), allocatable, intent(out) :: kc(:, :)  ! Global stiffness global
 
-        ! Auxiliaries
+        ! Aux *************************************************************************************
         integer :: element  ! index
 
         allocate(kc(nno*ndofn, nno*ndofn))

@@ -89,7 +89,7 @@ contains
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! I/O
+        ! I/O *************************************************************************************
         integer, intent(out) :: nno  ! Number of nodes
         integer, intent(out) :: nel  ! Number of elements
         integer, intent(out) :: ndofn  ! Number of degrees of freedom per node
@@ -109,20 +109,16 @@ contains
         logical, intent(out), allocatable :: itydisp(:, :) ! type of bound
         real(real64), intent(out), allocatable :: disp(:, :)  ! displacement value
 
-        integer, allocatable :: nnoc(:)  ! index of node with load
-        real(real64), allocatable :: ccno(:, :)  ! value of point load in node
+        integer, allocatable, intent(out) :: nnoc(:)  ! index of node with load
+        real(real64), allocatable, intent(out) :: ccno(:, :)  ! value of point load in node
 
-        ! File
+        ! Controls ********************************************************************************
         integer :: file_unit  ! Unit to file
-
-        ! Read
         integer :: read_stat  ! State of current read
-
-        ! Control
         integer :: id  ! Object ID
         character(20) :: line_label
 
-        ! Temp
+        ! Temp ************************************************************************************
         integer :: temp_int
 
         ! =========================================================================================

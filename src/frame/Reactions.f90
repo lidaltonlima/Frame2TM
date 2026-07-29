@@ -56,12 +56,12 @@ contains
         end do
     end subroutine calc_reactions
 
-    subroutine calc_el_reactions(El_reactions, nel, ndofn, bars, kl, rot, D, el_dim)
+    subroutine calc_el_reactions(el_reactions, nel, ndofn, bars, kl, rot, D, el_dim)
         ! =========================================================================================
         ! Vars Statements
         ! =========================================================================================
         ! I/O
-        real(real64), intent(inout) :: El_reactions(:, :)  ! elements efforts
+        real(real64), intent(inout) :: el_reactions(:, :)  ! elements efforts
         real(real64), intent(in) :: D(:)  ! Displacements
         real(real64), intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
         integer, intent(in) :: nel  ! Number of elements
@@ -74,8 +74,8 @@ contains
         integer :: i
         integer :: si, ei
         integer :: sf, ef
-        real(real64) :: De(el_dim)
-        real(real64) :: Del(el_dim)
+        real(real64) :: d_e(el_dim)
+        real(real64) :: d_el(el_dim)
 
 
         do i = 1, nel
@@ -85,11 +85,11 @@ contains
             sf = (ndofn * (bars(i, 4) - 1)) + 1
             ef = sf + ndofn - 1
 
-            De(:ndofn) = D(si:ei)
-            De(ndofn+1:) = D(sf:ef)
+            d_e(:ndofn) = D(si:ei)
+            d_e(ndofn+1:) = D(sf:ef)
 
-            Del = matmul(rot(i, :, :), De)
-            El_reactions(i, :) = matmul(kl(i, :, :), Del)
+            d_el = matmul(rot(i, :, :), d_e)
+            el_reactions(i, :) = matmul(kl(i, :, :), d_el)
         end do
     end subroutine calc_el_reactions
 end module Reactions

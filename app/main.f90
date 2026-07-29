@@ -45,8 +45,8 @@ program main
     real(real64), allocatable :: fc(:)  ! vector of loads
     real(real64), allocatable :: dc(:)  ! displacements
     real(real64), allocatable :: reactions(:)  ! reactions
-    real(real64), allocatable :: El_reactions(:, :)  ! elements reactions
-    real(real64), allocatable :: Eff(:, :)  ! elements efforts
+    real(real64), allocatable :: el_reactions(:, :)  ! elements reactions
+    real(real64), allocatable :: eff(:, :)  ! elements efforts
 
     ! Aux *****************************************************************************************
     integer :: dim  ! dimension of matrices and vectors
@@ -63,12 +63,11 @@ program main
     dim = nno * ndofn
     el_dim = 2 * ndofn
 
-    allocate(kc(dim, dim))
     allocate(dc(dim))
     allocate(fc(dim))
     allocate(reactions(dim))
-    allocate(El_reactions(nel, el_dim))
-    allocate(Eff(nel, el_dim))
+    allocate(el_reactions(nel, el_dim))
+    allocate(eff(nel, el_dim))
     allocate(rot_mat(nel, el_dim, el_dim))
     allocate(kl(nel, el_dim, el_dim))
 
@@ -81,13 +80,13 @@ program main
     call calc_fc(nno, ndofn, nnc, nnoc, ccno, nccdesl, nnr, itydisp, disp, kc, fc)
     call calc_dc(dc, kc, fc, nccdesl, nnr, itydisp, ndofn, dim, disp)
     call calc_reactions(reactions, kc, dc, fc, nccdesl, nnr, itydisp, disp, ndofn, dim)
-    call calc_el_reactions(El_reactions, nel, ndofn, bars, kl, rot_mat, dc, el_dim)
-    call calc_efforts(Eff, El_reactions, bars, nodes, nel)
+    call calc_el_reactions(el_reactions, nel, ndofn, bars, kl, rot_mat, dc, el_dim)
+    call calc_efforts(eff, el_reactions, bars, nodes, nel)
 
     ! =============================================================================================
     ! Show and save values
     ! =============================================================================================
     call save_results(tolerance, nno, nel, ndofn, ntm, nts, nnc, nsa, theory, &
         materials, sections, nodes, bars, nccdesl, nnr, itydisp, disp, nnoc, ccno, &
-        kl, rot_mat, reactions, El_reactions, Eff, kc, fc, dc)
+        kl, rot_mat, reactions, el_reactions, eff, kc, fc, dc)
 end program main

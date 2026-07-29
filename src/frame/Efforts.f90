@@ -4,10 +4,10 @@ module Efforts
     private
     public :: calc_efforts
 contains
-    subroutine calc_efforts(Eff, El_reactions, bars, nodes, nel)
+    subroutine calc_efforts(eff, el_reactions, bars, nodes, nel)
         ! I/O *************************************************************************************
-        real(real64), intent(inout) :: Eff(:, :)  ! elements efforts
-        real(real64), intent(in) :: El_reactions(:, :)  ! elements reactions
+        real(real64), intent(inout) :: eff(:, :)  ! elements efforts
+        real(real64), intent(in) :: el_reactions(:, :)  ! elements reactions
         real(real64), intent(in) :: nodes(:, :)
         integer, intent(in) :: bars(:, :)
         integer, intent(in) :: nel  ! Number of elements
@@ -20,18 +20,18 @@ contains
         ! =========================================================================================
         ! Calculation
         ! =========================================================================================
-        Eff = 0d0
+        eff = 0d0
         do i = 1, nel
             dx = nodes(bars(i, 4), 1) - nodes(bars(i, 3), 1)
             dy = nodes(bars(i, 4), 2) - nodes(bars(i, 3), 2)
             L = sqrt(dx**2 + dy**2)
 
-            Eff(i, 1) = -El_reactions(i, 1)
-            Eff(i, 2) = -El_reactions(i, 2)
-            Eff(i, 3) = -El_reactions(i, 3)
-            Eff(i, 4) = -El_reactions(i, 1)
-            Eff(i, 5) = -El_reactions(i, 2)
-            Eff(i, 6) = -El_reactions(i, 3) + El_reactions(i, 2) * L
+            eff(i, 1) = -el_reactions(i, 1)
+            eff(i, 2) = -el_reactions(i, 2)
+            eff(i, 3) = -el_reactions(i, 3)
+            eff(i, 4) = -el_reactions(i, 1)
+            eff(i, 5) = -el_reactions(i, 2)
+            eff(i, 6) = -el_reactions(i, 3) + el_reactions(i, 2) * L
         end do
     end subroutine calc_efforts
 end module Efforts
