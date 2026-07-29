@@ -4,18 +4,21 @@ module Efforts
     public :: calc_efforts
 contains
     subroutine calc_efforts(Eff, El_reactions, bars, nodes, nel)
-        ! I/O
+        ! I/O *************************************************************************************
         real(8), allocatable, intent(inout) :: Eff(:, :)  ! elements efforts
         real(8), allocatable, intent(in) :: El_reactions(:, :)  ! elements reactions
         real(8), allocatable, intent(in) :: nodes(:, :)
         integer, allocatable, intent(in) :: bars(:, :)
         integer, intent(in) :: nel  ! Number of elements
 
-        ! Aux
+        ! Aux *************************************************************************************
         integer :: i  ! index
         real(8) :: L  ! length
         real(8) :: dx, dy
 
+        ! =========================================================================================
+        ! Calculation
+        ! =========================================================================================
         Eff = 0d0
         do i = 1, nel
             dx = nodes(bars(i, 4), 1) - nodes(bars(i, 3), 1)

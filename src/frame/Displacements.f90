@@ -27,7 +27,7 @@ contains
         real(8), allocatable :: K_aux(:, :)
         real(8), allocatable :: F_aux(:)
 
-        ! External ************************************************************************************
+        ! External ********************************************************************************
         external :: dposv  ! solve symmetric positive defined matrix system (Lapack)
 
         integer :: info  ! status of operation (dposv - Lapack)
@@ -46,6 +46,7 @@ contains
         ! =========================================================================================
         ! Calculation
         ! =========================================================================================
+        ! Add boundary ****************************************************************************
         do i = 1, nccdesl
             do dir = 1, ndofn
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
@@ -59,10 +60,11 @@ contains
             end do
         end do
 
+        ! Solution the system *********************************************************************
         D = F_aux
         call dposv('U', dim, 1, K_Aux, dim, D, dim, info)
 
-        ! Sum the prescribed displacement
+        ! Sum the prescribed displacement *********************************************************
         do i = 1, nccdesl
             do dir = 1, ndofn
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
