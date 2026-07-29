@@ -7,7 +7,7 @@ contains
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! I/O
+        ! I/O *************************************************************************************
         integer, intent(in) :: nno  ! Number of nodes
         integer, intent(in) :: nnc  ! Number of nodes with point load
         integer, intent(in):: ndofn  ! Number of degrees of freedom per node
@@ -20,12 +20,15 @@ contains
         real(8), allocatable :: K(:, :)  ! Global stiffness global
         real(8), allocatable :: F(:)  ! Vector of loads
 
-        ! Auxiliaries
+        ! Aux *************************************************************************************
         integer :: i, dir  ! indices
         integer :: i_dir  ! index of bound direction
         real(8), allocatable :: Dp(:)  ! Vector of loads
 
 
+        ! =========================================================================================
+        ! Initialization
+        ! =========================================================================================
         ! Allocation
         allocate(F(nno*ndofn))
         allocate(Dp(nno*ndofn))

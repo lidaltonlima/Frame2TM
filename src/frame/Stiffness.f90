@@ -1,21 +1,23 @@
 module Stiffness
     use GQint, only: intGQ
     use LinearAlgebra, only: inv, LagPol
+
     implicit none
     private
-
     public :: calc_kl, calc_K
 
-    real(8) :: E  ! Elasticity module
-    real(8) :: G
-    real(8), allocatable :: A(:)  ! Area
-    real(8), allocatable :: As(:)
-    real(8) :: L  ! Length
-    real(8), allocatable :: I(:)  ! Inertia
-    character(2) :: theory_g
+    ! =============================================================================================
+    ! Global vars
+    ! =============================================================================================
+    real(8) :: E  ! elasticity module
+    real(8) :: G  ! shear elasticity module
+    real(8), allocatable :: A(:)  ! area
+    real(8), allocatable :: As(:)  ! shear area
+    real(8) :: L  ! length of element
+    real(8), allocatable :: Iz(:)  ! inertia
+    character(2) :: theory_g  ! theory used
 
     real(8), allocatable :: el_px(:)  ! Points of sample sections
-
 contains
     subroutine calc_kl(kl, nel, nsa, ndofn, theory, materials, sections, nodes, bars)
         ! Calculate the stiffness matrix local for all elements
@@ -23,11 +25,12 @@ contains
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! I/O
-        real(8), allocatable, intent(out):: kl(:, :, :) ! Stiffness matrix kl(i, j, element_id)
-        integer, intent(in) :: nel  ! Number of elements
-        integer, intent(in) :: nsa
+        ! I/O *************************************************************************************
+        real(8), allocatable, intent(out):: kl(:, :, :) ! stiffness matrix
+        integer, intent(in) :: nel  ! number of elements
+        integer, intent(in) :: nsa  ! number of sample sections
         integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
+
         real(8), intent(in) :: materials(:, :)
         real(8), intent(in) :: sections(:, :, :)
         real(8), intent(in) :: nodes(:, :)
@@ -35,10 +38,10 @@ contains
 
         character(2), intent(in) :: theory
 
-        ! Control
+        ! Control *********************************************************************************
         integer :: id   ! Index id
 
-        ! Auxiliary
+        ! Aux *************************************************************************************
         real(8) :: fIi(3, 3)
         real(8) :: fIf(3, 3)
         real(8) :: fFi(3, 3)
@@ -52,16 +55,20 @@ contains
         real(8) :: step  ! Step to get sections samples
         integer :: index
 
+        ! =========================================================================================
+        ! Initialization
+        ! =========================================================================================
+
         kl_dim = 2 * ndofn  ! 2 nodes per element
 
         if (nsa < 2) then
             error stop 'get_kl requires nsa >= 2'
         end if
 
-        allocate(el_px(nsa))
-        allocate(A(nsa))
-        allocate(As(nsa))
-        allocate(I(nsa))
+        if (.not. allocated(el_px)) allocate(el_px(nsa))
+        if (.not. allocated(A)) allocate(A(nsa))
+        if (.not. allocated(As)) allocate(As(nsa))
+        if (.not. allocated(Iz)) allocate(Iz(nsa))
 
         ! =========================================================================================
         ! Calculation
@@ -69,7 +76,7 @@ contains
         allocate(kl(nel, kl_dim, kl_dim))
         theory_g = theory
 
-        kl = 0D+00
+        kl = 0d0
         AII = 0d0
         AFF = 0d0
         do id = 1, nel
@@ -77,7 +84,7 @@ contains
             G = E / (2 * (1 + materials(bars(id, 1), 2)))
             A = sections(bars(id, 2), 1, :)
             As = sections(bars(id, 2), 2, :)
-            I = sections(bars(id, 2), 3, :)
+            Iz = sections(bars(id, 2), 3, :)
 
             dx = nodes(bars(id, 4), 1) - nodes(bars(id, 3), 1)
             dy = nodes(bars(id, 4), 2) - nodes(bars(id, 3), 2)
@@ -119,7 +126,7 @@ contains
         end do
     end subroutine
 
-    subroutine calc_K(nno, nel, ndofn, bars, kl, rot, K)
+    subroutine calc_K(K, nno, nel, ndofn, bars, kl, rot)
         ! Calculate the global stiffness matrix
 
         ! =========================================================================================
@@ -144,27 +151,30 @@ contains
         K = 0d0
 
         do element = 1, nel
-            call add_k(element, ndofn, kl, rot, bars, K)
+            call add_k(K, element, ndofn, kl, rot, bars)
         end do
     end subroutine
 
-    subroutine add_k(id, ndofn, kl, rot, bars, K)
+    subroutine add_k(K, id, ndofn, kl, rot, bars)
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! I/O
-        integer, intent(in) :: id
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
-        real(8), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix
-        real(8), allocatable, intent(in) :: rot(:, :, :)  ! Matrix of rotation
-        integer, allocatable :: bars(:, :)
+        ! I/O *************************************************************************************
+        integer, intent(in) :: id  ! index of element
+        integer, intent(in) :: ndofn  ! number of degrees of freedom per node
+        real(8), allocatable, intent(in) :: kl(:, :, :)  ! stiffness matrix of element
+        real(8), allocatable, intent(in) :: rot(:, :, :)  ! rotation matrix of element
+        integer, allocatable, intent(in) :: bars(:, :)
         real(8), allocatable, intent(inout) :: K(:, :)  ! Global stiffness global
 
-        ! Auxiliaries
+        ! Auxiliaries *****************************************************************************
         real(8), allocatable :: kg(:, :)  ! Stiffness matrix
         integer :: si, ei  ! indices position of start node
         integer :: sj, ej  ! indices position of start node
 
+        ! =========================================================================================
+        ! Calculates
+        ! =========================================================================================
         kg = kl(id, :, :)
         kg = matmul(matmul(transpose(rot(id, :, :)), kg), rot(id, :, :))
 
@@ -192,7 +202,7 @@ contains
         real(8), intent(in) :: x
         real(8) :: y
 
-        y = E * LagPol(el_px, I, x)
+        y = E * LagPol(el_px, Iz, x)
     end function kb
 
     pure function ks(x) result(y)

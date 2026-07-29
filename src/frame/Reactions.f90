@@ -1,27 +1,44 @@
 module Reactions
     implicit none
     private
-    public :: get_reactions, get_el_reactions
+    public :: calc_reactions, calc_el_reactions
 contains
-    subroutine get_reactions(reactions, Kwb, D, F, nccdesl, nnr, itydisp, ndofn, nno)
+    subroutine calc_reactions(reactions, K, D, F, nccdesl, nnr, itydisp, disp, ndofn, nno)
         ! =========================================================================================
         ! Vars Statements
         ! =========================================================================================
-        ! I/O
+        ! I/O *************************************************************************************
         real(8), allocatable, intent(inout) :: reactions(:)  ! reactions
-        real(8), allocatable, intent(in) :: Kwb(:, :)
+
+        integer, intent(in) :: nno  ! Number of nodes
+        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
+
+        real(8), allocatable, intent(in) :: K(:, :)
         real(8), allocatable, intent(in) :: D(:)  ! Displacements
         real(8), allocatable, intent(in) :: F(:)  ! Vector of loads
-        integer, intent(in) :: nccdesl  ! Number of boundaries condition
+
         integer, allocatable, intent(in) :: nnr(:)  ! index of bound node
+        integer, intent(in) :: nccdesl  ! Number of boundaries condition
         logical, allocatable, intent(in) :: itydisp(:, :) ! type of bound
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
-        integer, intent(in) :: nno  ! Number of nodes
+        real(8), allocatable, intent(in) :: disp(:, :)  ! displacement value
 
-        ! Aux
-        integer :: i, j, dir, i_dir
+        ! Control *********************************************************************************
+        integer :: i, j, dir, i_dir ! indexes
+        real(8) :: D_aux(ndofn*nno)
 
 
+        ! =========================================================================================
+        ! Calculation
+        ! =========================================================================================
+        D_aux = D
+        do i =1, nccdesl
+            do dir = 1, ndofn
+                if (itydisp(i, dir)) then
+                    i_dir = (ndofn * (nnr(i) - 1)) + dir
+                    D_aux(i_dir) = D_aux(i_dir) - (disp(i, dir))
+                end if
+            end do
+        end do
         do i = 1, nccdesl
             do dir = 1, ndofn
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
@@ -30,14 +47,14 @@ contains
                     reactions(i_dir) = reactions(i_dir) - F(i_dir)
 
                     do j = 1, ndofn*nno
-                        reactions(i_dir) = reactions(i_dir) + Kwb(i_dir, j) * D(j)
+                        reactions(i_dir) = reactions(i_dir) + K(i_dir, j) * D_aux(j)
                     end do
                 end if
             end do
         end do
-    end subroutine get_reactions
+    end subroutine calc_reactions
 
-    subroutine get_el_reactions(El_reactions, nel, ndofn, bars, kl, rot, D)
+    subroutine calc_el_reactions(El_reactions, nel, ndofn, bars, kl, rot, D)
         ! =========================================================================================
         ! Vars Statements
         ! =========================================================================================
@@ -71,5 +88,5 @@ contains
             Del = matmul(rot(i, :, :), De)
             El_reactions(i, :) = matmul(kl(i, :, :), Del)
         end do
-    end subroutine get_el_reactions
+    end subroutine calc_el_reactions
 end module Reactions

@@ -1,9 +1,9 @@
 module Efforts
     implicit none
     private
-    public :: get_efforts
+    public :: calc_efforts
 contains
-    subroutine get_efforts(Eff, El_reactions, bars, nodes, nel)
+    subroutine calc_efforts(Eff, El_reactions, bars, nodes, nel)
         ! I/O
         real(8), allocatable, intent(inout) :: Eff(:, :)  ! elements efforts
         real(8), allocatable, intent(in) :: El_reactions(:, :)  ! elements reactions
@@ -29,5 +29,5 @@ contains
             Eff(i, 5) = -El_reactions(i, 2)
             Eff(i, 6) = -El_reactions(i, 3) + El_reactions(i, 2) * L
         end do
-    end subroutine get_efforts
+    end subroutine calc_efforts
 end module Efforts
