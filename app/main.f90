@@ -3,7 +3,7 @@ program main
 
     use StructureData
     use StructureFiles, only: get_structure_data, save_results
-    use Stiffness, only: calc_EKl, calc_Kg
+    use Stiffness, only: EKl, calc_Kg
     use Displacements, only: calc_Dg
     use Loads, only: calc_Fg
     use CalcReactions, only: calc_Rg, calc_ERl
@@ -25,12 +25,10 @@ program main
     allocate(Rg(dim))
     allocate(ERl(nel, E_dim))
     allocate(EEl(nel, E_dim))
-    allocate(EKl(nel, E_dim, E_dim))
 
     ! =============================================================================================
     ! Calculation
     ! =============================================================================================
-    call calc_EKl
     call calc_Kg
     call calc_Fg
     call calc_Dg

@@ -34,7 +34,6 @@ module StructureData
     real(real64), allocatable :: ccno(:, :)  ! value of point load in node
 
     ! Calculate data ******************************************************************************
-    real(real64), allocatable :: EKl(:, :, :)  ! stiffness matrix kl(element_id, i, j)
     real(real64), allocatable :: Kg(:, :)  ! global stiffness global
     real(real64), allocatable :: Fg(:)  ! global vector of loads
     real(real64), allocatable :: Dg(:)  ! global displacements

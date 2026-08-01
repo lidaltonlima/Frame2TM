@@ -1,14 +1,14 @@
 module Stiffness
     use iso_fortran_env, only: real64
 
-    use StructureData
+    use StructureData, only: nsa, theory, materials, bars, sections, nodes, nel, nno, ndofn, Kg, E_dim
     use GQint, only: intGQ
     use LinearAlgebra, only: inv, LagPol
     use Rotation, only: R
 
     implicit none
     private
-    public :: calc_EKl, calc_Kg
+    public :: EKl, calc_Kg
 
     ! =============================================================================================
     ! Global vars
@@ -23,14 +23,14 @@ module Stiffness
 
     real(real64), allocatable :: el_px(:)  ! Points of sample sections
 contains
-    subroutine calc_EKl
-        ! Calculate the stiffness matrix local for all elements
+    function EKl(id)
+        ! Calculate the local stiffness matrix on demand.
 
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! Control *********************************************************************************
-        integer :: id   ! Index id
+        integer, intent(in) :: id
+        real(real64), allocatable :: EKl(:, :)
 
         ! Aux *************************************************************************************
         real(real64) :: fIi(3, 3)
@@ -52,6 +52,8 @@ contains
             error stop 'get_kl requires nsa >= 2'
         end if
 
+        allocate(EKl(E_dim, E_dim))
+
         if (.not. allocated(el_px)) allocate(el_px(nsa))
         if (.not. allocated(A)) allocate(A(nsa))
         if (.not. allocated(As)) allocate(As(nsa))
@@ -65,52 +67,50 @@ contains
         EKl = 0d0
         AII = 0d0
         AFF = 0d0
-        do id = 1, nel
-            E = materials(bars(id, 1), 1)
-            G = E / (2 * (1 + materials(bars(id, 1), 2)))
-            A = sections(bars(id, 2), 1, :)
-            As = sections(bars(id, 2), 2, :)
-            Iz = sections(bars(id, 2), 3, :)
+        E = materials(bars(id, 1), 1)
+        G = E / (2 * (1 + materials(bars(id, 1), 2)))
+        A = sections(bars(id, 2), 1, :)
+        As = sections(bars(id, 2), 2, :)
+        Iz = sections(bars(id, 2), 3, :)
 
-            dx = nodes(bars(id, 4), 1) - nodes(bars(id, 3), 1)
-            dy = nodes(bars(id, 4), 2) - nodes(bars(id, 3), 2)
-            L = sqrt(dx**2 + dy**2)
+        dx = nodes(bars(id, 4), 1) - nodes(bars(id, 3), 1)
+        dy = nodes(bars(id, 4), 2) - nodes(bars(id, 3), 2)
+        L = sqrt(dx**2 + dy**2)
 
-            ! Get points of sample sections
-            step = L / (nsa - 1)
-            do index = 1, nsa
-                el_px(index) = step * (index - 1)
-            end do
-
-            EII = 0d0
-            EII(1, 1) = 1
-            EII(2, 2) = 1
-            EII(3, 3) = 1
-            EII(3, 2) = -L
-
-            AII(1, 1) = intGQ(0d0, L, a11, 4)
-            AII(2, 2) = intGQ(0d0, L, a22, 4)
-            AII(2, 3) = intGQ(0d0, L, a23, 4)
-            AII(3, 2) = intGQ(0d0, L, a32, 4)
-            AII(3, 3) = intGQ(0d0, L, a33, 4)
-
-            AFF(1, 1) = intGQ(0d0, L, a44, 4)
-            AFF(2, 2) = intGQ(0d0, L, a55, 4)
-            AFF(2, 3) = intGQ(0d0, L, a56, 4)
-            AFF(3, 2) = intGQ(0d0, L, a65, 4)
-            AFF(3, 3) = intGQ(0d0, L, a66, 4)
-
-            fIi = inv(AII)
-            fFf = inv(AFF)
-            fIf = matmul(-inv(EII), fFf)
-            fFi = matmul(-EII, fIi)
-
-            EKl(id, :3, :3) = fIi
-            EKl(id, :3, 4:) = fIf
-            EKl(id, 4:, 4:) = fFf
-            EKl(id, 4:, :3) = fFi
+        ! Get points of sample sections
+        step = L / (nsa - 1)
+        do index = 1, nsa
+            el_px(index) = step * (index - 1)
         end do
-    end subroutine
+
+        EII = 0d0
+        EII(1, 1) = 1
+        EII(2, 2) = 1
+        EII(3, 3) = 1
+        EII(3, 2) = -L
+
+        AII(1, 1) = intGQ(0d0, L, a11, 4)
+        AII(2, 2) = intGQ(0d0, L, a22, 4)
+        AII(2, 3) = intGQ(0d0, L, a23, 4)
+        AII(3, 2) = intGQ(0d0, L, a32, 4)
+        AII(3, 3) = intGQ(0d0, L, a33, 4)
+
+        AFF(1, 1) = intGQ(0d0, L, a44, 4)
+        AFF(2, 2) = intGQ(0d0, L, a55, 4)
+        AFF(2, 3) = intGQ(0d0, L, a56, 4)
+        AFF(3, 2) = intGQ(0d0, L, a65, 4)
+        AFF(3, 3) = intGQ(0d0, L, a66, 4)
+
+        fIi = inv(AII)
+        fFf = inv(AFF)
+        fIf = matmul(-inv(EII), fFf)
+        fFi = matmul(-EII, fIi)
+
+        EKl(:3, :3) = fIi
+        EKl(:3, 4:) = fIf
+        EKl(4:, 4:) = fFf
+        EKl(4:, :3) = fFi
+    end function EKl
 
     subroutine calc_Kg
         ! Calculate the global stiffness matrix
@@ -148,7 +148,7 @@ contains
         ! Calculates
         ! =========================================================================================
         Rm = R(id)
-        EKg = EKl(id, :, :)
+        EKg = EKl(id)
         EKg = matmul(matmul(transpose(Rm), EKg), Rm)
 
         si = (ndofn * (bars(id, 3) - 1)) + 1  ! Start index of initial node

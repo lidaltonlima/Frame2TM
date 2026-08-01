@@ -3,6 +3,7 @@ module CalcReactions
 
     use StructureData
     use Rotation, only: R
+    use Stiffness, only: EKl
 
     implicit none
     private
@@ -68,7 +69,7 @@ contains
             EDg(ndofn+1:) = Dg(sf:ef)
 
             EDl = matmul(R(i), EDg)
-            ERl(i, :) = matmul(EKl(i, :, :), EDl)
+            ERl(i, :) = matmul(EKl(i), EDl)
         end do
     end subroutine calc_ERl
 end module CalcReactions
