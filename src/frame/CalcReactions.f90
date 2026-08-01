@@ -1,29 +1,16 @@
-module Reactions
+module CalcReactions
     use iso_fortran_env, only: real64
+
+    use StructureData
+
     implicit none
     private
     public :: calc_reactions, calc_el_reactions
 contains
-    subroutine calc_reactions(reactions, K, D, F, nccdesl, nnr, itydisp, disp, ndofn, dim)
+    subroutine calc_reactions
         ! =========================================================================================
         ! Vars Statements
         ! =========================================================================================
-        ! I/O *************************************************************************************
-        real(real64), intent(inout) :: reactions(:)  ! reactions
-
-        real(real64), intent(in) :: K(:, :)
-        real(real64), intent(in) :: D(:)  ! Displacements
-        real(real64), intent(in) :: F(:)  ! Vector of loads
-
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
-
-        integer, intent(in) :: nnr(:)  ! index of bound node
-        integer, intent(in) :: nccdesl  ! Number of boundaries condition
-        logical, intent(in) :: itydisp(:, :) ! type of bound
-        real(real64), intent(in) :: disp(:, :)  ! displacement value
-
-        integer, intent(in) :: dim  ! dimension of matrices and vectors
-
         ! Control *********************************************************************************
         integer :: i, j, dir, i_dir ! indexes
         real(real64) :: D_aux(dim)
@@ -32,7 +19,7 @@ contains
         ! =========================================================================================
         ! Calculation
         ! =========================================================================================
-        D_aux = D
+        D_aux = dc
         do i =1, nccdesl
             do dir = 1, ndofn
                 if (itydisp(i, dir)) then
@@ -46,29 +33,20 @@ contains
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
 
                 if (itydisp(i, dir)) then
-                    reactions(i_dir) = reactions(i_dir) - F(i_dir)
+                    reactions(i_dir) = reactions(i_dir) - fc(i_dir)
 
                     do j = 1, dim
-                        reactions(i_dir) = reactions(i_dir) + K(i_dir, j) * D_aux(j)
+                        reactions(i_dir) = reactions(i_dir) + kc(i_dir, j) * D_aux(j)
                     end do
                 end if
             end do
         end do
     end subroutine calc_reactions
 
-    subroutine calc_el_reactions(el_reactions, nel, ndofn, bars, kl, rot, D, el_dim)
+    subroutine calc_el_reactions
         ! =========================================================================================
         ! Vars Statements
-        ! =========================================================================================
-        ! I/O
-        real(real64), intent(inout) :: el_reactions(:, :)  ! elements efforts
-        real(real64), intent(in) :: D(:)  ! Displacements
-        real(real64), intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
-        integer, intent(in) :: nel  ! Number of elements
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
-        integer, intent(in) :: bars(:, :)
-        real(real64), intent(in) :: rot(:, :, :)  ! Matrix of rotation
-        integer, intent(in) :: el_dim  ! dimension of matrices and vectors
+        ! =========================================================================================on of matrices and vectors
 
         ! Aux
         integer :: i
@@ -85,11 +63,11 @@ contains
             sf = (ndofn * (bars(i, 4) - 1)) + 1
             ef = sf + ndofn - 1
 
-            d_e(:ndofn) = D(si:ei)
-            d_e(ndofn+1:) = D(sf:ef)
+            d_e(:ndofn) = dc(si:ei)
+            d_e(ndofn+1:) = dc(sf:ef)
 
-            d_el = matmul(rot(i, :, :), d_e)
+            d_el = matmul(rot_mat(i, :, :), d_e)
             el_reactions(i, :) = matmul(kl(i, :, :), d_el)
         end do
     end subroutine calc_el_reactions
-end module Reactions
+end module CalcReactions

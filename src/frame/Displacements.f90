@@ -1,28 +1,17 @@
 module Displacements
     use iso_fortran_env, only: real64
+
+    use StructureData
+
     implicit none
     private
 
     public :: calc_dc
 contains
-    subroutine calc_dc(D, K, F, nccdesl, nnr, itydisp, ndofn, dim, disp)
+    subroutine calc_dc
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! I/O *************************************************************************************
-        real(real64), intent(inout) :: D(:)  ! displacements
-
-        real(real64), intent(in) :: K(:, :)  ! Global stiffness global
-        real(real64), intent(in) :: F(:)  ! Vector of loads
-
-        integer, intent(in) :: nccdesl  ! Number of boundaries condition
-        integer, intent(in) :: nnr(:)  ! index of bound node
-        logical, intent(in) :: itydisp(:, :) ! type of bound
-        real(real64), intent(in) :: disp(:, :)  ! displacement value
-
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
-        integer, intent(in) :: dim  ! dimension of matrices and vectors
-
         ! Aux *************************************************************************************
         integer :: i, dir  ! indices
         integer :: i_dir  ! index of bound direction
@@ -42,8 +31,8 @@ contains
         allocate(F_aux(dim))
 
         ! Start values
-        K_aux = K
-        F_aux = F
+        K_aux = kc
+        F_aux = fc
 
         ! =========================================================================================
         ! Calculation
@@ -63,8 +52,8 @@ contains
         end do
 
         ! Solution the system *********************************************************************
-        D = F_aux
-        call dposv('U', dim, 1, K_Aux, dim, D, dim, info)
+        dc = F_aux
+        call dposv('U', dim, 1, K_Aux, dim, dc, dim, info)
 
         if (info /= 0) error stop 'DPOSV - calc_D - Displacements: solution system.'
 
@@ -74,7 +63,7 @@ contains
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
 
                 if (itydisp(i, dir)) then
-                    D(i_dir) = disp(i, dir)
+                    dc(i_dir) = disp(i, dir)
                 end if
             end do
         end do

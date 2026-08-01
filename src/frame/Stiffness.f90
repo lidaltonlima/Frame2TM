@@ -1,5 +1,7 @@
 module Stiffness
     use iso_fortran_env, only: real64
+
+    use StructureData
     use GQint, only: intGQ
     use LinearAlgebra, only: inv, LagPol
 
@@ -20,24 +22,12 @@ module Stiffness
 
     real(real64), allocatable :: el_px(:)  ! Points of sample sections
 contains
-    subroutine calc_kl(kl, nel, nsa, theory, materials, sections, nodes, bars)
+    subroutine calc_kl
         ! Calculate the stiffness matrix local for all elements
 
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! I/O *************************************************************************************
-        real(real64), intent(inout):: kl(:, :, :) ! stiffness matrix
-        integer, intent(in) :: nel  ! number of elements
-        integer, intent(in) :: nsa  ! number of sample sections
-
-        real(real64), intent(in) :: materials(:, :)
-        real(real64), intent(in) :: sections(:, :, :)
-        real(real64), intent(in) :: nodes(:, :)
-        integer, intent(in) :: bars(:, :)
-
-        character(2), intent(in) :: theory
-
         ! Control *********************************************************************************
         integer :: id   ! Index id
 
@@ -121,23 +111,12 @@ contains
         end do
     end subroutine
 
-    subroutine calc_kc(kc, nno, nel, ndofn, bars, kl, rot)
+    subroutine calc_kc
         ! Calculate the global stiffness matrix
 
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
-        ! I/O *************************************************************************************
-        integer, intent(in) :: nno  ! Number of nodes
-        integer, intent(in) :: nel  ! Number of elements
-        integer, intent(in) :: ndofn  ! Number of degrees of freedom per node
-
-        integer, allocatable, intent(in) :: bars(:, :)
-        real(real64), allocatable, intent(in) :: kl(:, :, :)  ! Stiffness matrix kl(element_id, i, j)
-        real(real64), allocatable, intent(in) :: rot(:, :, :)  ! Matrix of rotation
-
-        real(real64), allocatable, intent(out) :: kc(:, :)  ! Global stiffness global
-
         ! Aux *************************************************************************************
         integer :: element  ! index
 
@@ -146,20 +125,16 @@ contains
         kc = 0d0
 
         do element = 1, nel
-            call add_k(kc, element, ndofn, kl, rot, bars)
+            call add_k(kc, element)
         end do
     end subroutine
 
-    subroutine add_k(K, id, ndofn, kl, rot, bars)
+    subroutine add_k(K, id)
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
         ! I/O *************************************************************************************
         integer, intent(in) :: id  ! index of element
-        integer, intent(in) :: ndofn  ! number of degrees of freedom per node
-        real(real64), allocatable, intent(in) :: kl(:, :, :)  ! stiffness matrix of element
-        real(real64), allocatable, intent(in) :: rot(:, :, :)  ! rotation matrix of element
-        integer, allocatable, intent(in) :: bars(:, :)
         real(real64), allocatable, intent(inout) :: K(:, :)  ! Global stiffness global
 
         ! Auxiliaries *****************************************************************************
@@ -171,7 +146,7 @@ contains
         ! Calculates
         ! =========================================================================================
         kg = kl(id, :, :)
-        kg = matmul(matmul(transpose(rot(id, :, :)), kg), rot(id, :, :))
+        kg = matmul(matmul(transpose(rot_mat(id, :, :)), kg), rot_mat(id, :, :))
 
         si = (ndofn * (bars(id, 3) - 1)) + 1  ! Start index of initial node
         ei = si + ndofn - 1  ! End index of initial node

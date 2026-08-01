@@ -1,17 +1,13 @@
 module Efforts
     use iso_fortran_env, only: real64
+
+    use StructureData
+
     implicit none
     private
     public :: calc_efforts
 contains
-    subroutine calc_efforts(eff, el_reactions, bars, nodes, nel)
-        ! I/O *************************************************************************************
-        real(real64), intent(inout) :: eff(:, :)  ! elements efforts
-        real(real64), intent(in) :: el_reactions(:, :)  ! elements reactions
-        real(real64), intent(in) :: nodes(:, :)
-        integer, intent(in) :: bars(:, :)
-        integer, intent(in) :: nel  ! Number of elements
-
+    subroutine calc_efforts
         ! Aux *************************************************************************************
         integer :: i  ! index
         real(real64) :: L  ! length
