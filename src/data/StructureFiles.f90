@@ -398,49 +398,6 @@ contains
         write(file_unit, *)
         write(file_unit, *)
 
-        ! Local Stiffness Matrix ******************************************************************
-        write(file_unit, '(A17)', advance='no') 'Stiffness Matrix '
-        do i = 1, 83
-            write(file_unit, '(A1)', advance='no') '/'
-        end do
-        write(file_unit, *)
-
-        do id = 1, nel
-            write(file_unit, '(1A9, 1I4)') 'Element: ', id
-            do i = 1, 2 * ndofn
-                do j = 1, 2 * ndofn
-                    if (abs(kl(id, i, j)) < disp_tol) then
-                        write(file_unit, '(ES11.2)', advance='no') 0.0d0
-                    else
-                        write(file_unit, '(ES11.2)', advance='no') kl(id, i, j)
-                    end if
-                end do
-                write(file_unit, *)
-            end do
-        end do
-        write(file_unit, *)
-        write(file_unit, *)
-
-        ! Rot Matrix ******************************************************************************
-        write(file_unit, '(A16)', advance='no') 'Rotation Matrix '
-        do i = 1, 84
-            write(file_unit, '(A1)', advance='no') '/'
-        end do
-        write(file_unit, *)
-        do id = 1, nel
-            write(file_unit, '(1A9, 1I4)') 'Element: ', id
-            do i = 1, 2 * ndofn
-                do j = 1, 2 * ndofn
-                    if (abs(R(id, i, j)) < disp_tol) then
-                        write(file_unit, '(F7.2)', advance='no') 0.0d0
-                    else
-                        write(file_unit, '(F7.2)', advance='no') R(id, i, j)
-                    end if
-                end do
-                write(file_unit, *)
-            end do
-        end do
-        write(file_unit, *)
 
         ! Element Reactions ***********************************************************************
         write(file_unit, '(A18)', advance='no') 'Element Reactions '
@@ -485,42 +442,6 @@ contains
             end do
             write(file_unit, *)
         end do
-        write(file_unit, *)
-        write(file_unit, *)
-
-        ! Global Matrix ***************************************************************************
-        write(file_unit, '(A14)', advance='no') 'Global Matrix '
-        do i = 1, 87
-            write(file_unit, '(A1)', advance='no') '/'
-        end do
-        write(file_unit, *)
-        do i = 1, nno*ndofn
-            do j = 1, nno*ndofn
-                if (abs(Kg(i, j)) < disp_tol) then
-                    write(file_unit, '(ES10.2)', advance='no') 0.0d0
-                else
-                    write(file_unit, '(ES10.2)', advance='no') Kg(i, j)
-                end if
-            end do
-            write(file_unit, *)
-        end do
-        write(file_unit, *)
-        write(file_unit, *)
-
-        ! Load Vector *****************************************************************************
-        write(file_unit, '(A11)', advance='no') 'Lad Vector '
-        do i = 1, 89
-            write(file_unit, '(A1)', advance='no') '/'
-        end do
-        write(file_unit, *)
-        do i = 1, nno*ndofn
-            if (abs(Fg(i)) < disp_tol) then
-                write(file_unit, '(ES10.2)', advance='no') 0.0d0
-            else
-                write(file_unit, '(ES10.2)', advance='no') Fg(i)
-            end if
-        end do
-        write(file_unit, *)
         write(file_unit, *)
         write(file_unit, *)
 

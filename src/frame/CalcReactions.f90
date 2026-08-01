@@ -67,7 +67,7 @@ contains
             d_e(ndofn+1:) = Dg(sf:ef)
 
             d_el = matmul(R(i, :, :), d_e)
-            ERl(i, :) = matmul(kl(i, :, :), d_el)
+            ERl(i, :) = matmul(EKl(i, :, :), d_el)
         end do
     end subroutine calc_el_reactions
 end module CalcReactions

@@ -61,7 +61,7 @@ contains
         ! =========================================================================================
         theory_g = theory
 
-        kl = 0d0
+        EKl = 0d0
         AII = 0d0
         AFF = 0d0
         do id = 1, nel
@@ -104,10 +104,10 @@ contains
             fIf = matmul(-inv(EII), fFf)
             fFi = matmul(-EII, fIi)
 
-            kl(id, :3, :3) = fIi
-            kl(id, :3, 4:) = fIf
-            kl(id, 4:, 4:) = fFf
-            kl(id, 4:, :3) = fFi
+            EKl(id, :3, :3) = fIi
+            EKl(id, :3, 4:) = fIf
+            EKl(id, 4:, 4:) = fFf
+            EKl(id, 4:, :3) = fFi
         end do
     end subroutine
 
@@ -145,7 +145,7 @@ contains
         ! =========================================================================================
         ! Calculates
         ! =========================================================================================
-        klg = kl(id, :, :)
+        klg = EKl(id, :, :)
         klg = matmul(matmul(transpose(R(id, :, :)), klg), R(id, :, :))
 
         si = (ndofn * (bars(id, 3) - 1)) + 1  ! Start index of initial node

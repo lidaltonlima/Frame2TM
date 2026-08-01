@@ -27,7 +27,7 @@ program main
     allocate(ERl(nel, E_dim))
     allocate(EEl(nel, E_dim))
     allocate(R(nel, E_dim, E_dim))
-    allocate(kl(nel, E_dim, E_dim))
+    allocate(EKl(nel, E_dim, E_dim))
 
     ! =============================================================================================
     ! Calculation
