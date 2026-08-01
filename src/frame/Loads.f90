@@ -5,9 +5,9 @@ module Loads
 
     implicit none
     private
-    public :: calc_fc
+    public :: calc_Fg
 contains
-    subroutine calc_fc
+    subroutine calc_Fg
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
@@ -43,5 +43,5 @@ contains
         end do
 
         Fg = Fg - matmul(Kg, Dp)
-    end subroutine calc_fc
+    end subroutine calc_Fg
 end module Loads

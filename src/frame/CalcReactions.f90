@@ -5,9 +5,9 @@ module CalcReactions
 
     implicit none
     private
-    public :: calc_reactions, calc_el_reactions
+    public :: calc_Rg, calc_ERl
 contains
-    subroutine calc_reactions
+    subroutine calc_Rg
         ! =========================================================================================
         ! Vars Statements
         ! =========================================================================================
@@ -41,19 +41,19 @@ contains
                 end if
             end do
         end do
-    end subroutine calc_reactions
+    end subroutine calc_Rg
 
-    subroutine calc_el_reactions
+    subroutine calc_ERl
         ! =========================================================================================
         ! Vars Statements
         ! =========================================================================================on of matrices and vectors
 
         ! Aux
         integer :: i
-        integer :: si, ei
-        integer :: sf, ef
-        real(real64) :: d_e(E_dim)
-        real(real64) :: d_el(E_dim)
+        integer :: si, ei  ! start and end index in initial node
+        integer :: sf, ef  ! start and end index in end node
+        real(real64) :: EDg(E_dim)  ! element displacement in global system
+        real(real64) :: EDl(E_dim)  ! element displacement in local system
 
 
         do i = 1, nel
@@ -63,11 +63,11 @@ contains
             sf = (ndofn * (bars(i, 4) - 1)) + 1
             ef = sf + ndofn - 1
 
-            d_e(:ndofn) = Dg(si:ei)
-            d_e(ndofn+1:) = Dg(sf:ef)
+            EDg(:ndofn) = Dg(si:ei)
+            EDg(ndofn+1:) = Dg(sf:ef)
 
-            d_el = matmul(R(i, :, :), d_e)
-            ERl(i, :) = matmul(EKl(i, :, :), d_el)
+            EDl = matmul(R(i, :, :), EDg)
+            ERl(i, :) = matmul(EKl(i, :, :), EDl)
         end do
-    end subroutine calc_el_reactions
+    end subroutine calc_ERl
 end module CalcReactions

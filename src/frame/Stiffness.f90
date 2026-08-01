@@ -7,7 +7,7 @@ module Stiffness
 
     implicit none
     private
-    public :: calc_kl, calc_kc
+    public :: calc_EKl, calc_Kg
 
     ! =============================================================================================
     ! Global vars
@@ -22,7 +22,7 @@ module Stiffness
 
     real(real64), allocatable :: el_px(:)  ! Points of sample sections
 contains
-    subroutine calc_kl
+    subroutine calc_EKl
         ! Calculate the stiffness matrix local for all elements
 
         ! =========================================================================================
@@ -111,7 +111,7 @@ contains
         end do
     end subroutine
 
-    subroutine calc_kc
+    subroutine calc_Kg
         ! Calculate the global stiffness matrix
 
         ! =========================================================================================
@@ -138,15 +138,15 @@ contains
         real(real64), allocatable, intent(inout) :: K(:, :)  ! Global stiffness global
 
         ! Auxiliaries *****************************************************************************
-        real(real64), allocatable :: klg(:, :)  ! Stiffness matrix
-        integer :: si, ei  ! indices position of start node
-        integer :: sj, ej  ! indices position of start node
+        real(real64), allocatable :: EKg(:, :)  ! element stiffness matrix in global system
+        integer :: si, ei  ! start and end index in initial node
+        integer :: sj, ej  ! start and end index in end node
 
         ! =========================================================================================
         ! Calculates
         ! =========================================================================================
-        klg = EKl(id, :, :)
-        klg = matmul(matmul(transpose(R(id, :, :)), klg), R(id, :, :))
+        EKg = EKl(id, :, :)
+        EKg = matmul(matmul(transpose(R(id, :, :)), EKg), R(id, :, :))
 
         si = (ndofn * (bars(id, 3) - 1)) + 1  ! Start index of initial node
         ei = si + ndofn - 1  ! End index of initial node
@@ -155,10 +155,10 @@ contains
         ej = sj + ndofn - 1  ! End index of end node
 
 
-        K(si:ei, si:ei) = K(si:ei, si:ei) + klg(:3, :3)  ! k_ii
-        K(si:ei, sj:ej) = K(si:ei, sj:ej) + klg(:3, 4:)  ! k_ij
-        K(sj:ej, si:ei) = K(sj:ej, si:ei) + klg(4:, :3)  ! k_ji
-        K(sj:ej, sj:ej) = K(sj:ej, sj:ej) + klg(4:, 4:)  ! k_jj
+        K(si:ei, si:ei) = K(si:ei, si:ei) + EKg(:3, :3)  ! k_ii
+        K(si:ei, sj:ej) = K(si:ei, sj:ej) + EKg(:3, 4:)  ! k_ij
+        K(sj:ej, si:ei) = K(sj:ej, si:ei) + EKg(4:, :3)  ! k_ji
+        K(sj:ej, sj:ej) = K(sj:ej, sj:ej) + EKg(4:, 4:)  ! k_jj
     end subroutine add_k
 
     pure function ka(x) result(y)

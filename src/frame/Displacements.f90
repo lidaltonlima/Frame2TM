@@ -6,9 +6,9 @@ module Displacements
     implicit none
     private
 
-    public :: calc_dc
+    public :: calc_Dg
 contains
-    subroutine calc_dc
+    subroutine calc_Dg
         ! =========================================================================================
         ! Vars statement
         ! =========================================================================================
@@ -67,5 +67,5 @@ contains
                 end if
             end do
         end do
-    end subroutine calc_dc
+    end subroutine calc_Dg
 end module Displacements

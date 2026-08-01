@@ -7,9 +7,9 @@ module Rotation
     implicit none
     private
 
-    public :: calc_rot_mat
+    public :: calc_R
 contains
-    subroutine calc_rot_mat
+    subroutine calc_R
         ! Calculate the rotation matrix
 
         ! =========================================================================================
@@ -59,5 +59,5 @@ contains
 
             R(id, 4:, 4:) = R(id, :3, :3)
         end do
-    end subroutine calc_rot_mat
+    end subroutine calc_R
 end module Rotation

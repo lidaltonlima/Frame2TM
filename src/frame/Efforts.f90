@@ -5,9 +5,9 @@ module Efforts
 
     implicit none
     private
-    public :: calc_efforts
+    public :: calc_EEl
 contains
-    subroutine calc_efforts
+    subroutine calc_EEl
         ! Aux *************************************************************************************
         integer :: i  ! index
         real(real64) :: L  ! length
@@ -29,5 +29,5 @@ contains
             EEl(i, 5) = -ERl(i, 2)
             EEl(i, 6) = -ERl(i, 3) + ERl(i, 2) * L
         end do
-    end subroutine calc_efforts
+    end subroutine calc_EEl
 end module Efforts

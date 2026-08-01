@@ -68,8 +68,17 @@ program StructureTest
     ! Close ***************************************************************************************
     close(file_unit_t)
     close(file_unit_r)
+
+    ! Footer **************************************************************************************
     write(*, *)
-    write(*, *) 'Tests finished'
+    do i = 1, 100
+        write(*, '(1A)', advance='no') '='
+    end do
+    write(*, *)
+    write(*, '(1A33)') 'Tests Finished - To Compare files'
+    do i = 1, 100
+        write(*, '(1A)', advance='no') '='
+    end do
 
 contains
     subroutine show_details

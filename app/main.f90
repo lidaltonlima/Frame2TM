@@ -3,12 +3,12 @@ program main
 
     use StructureData
     use StructureFiles, only: get_structure_data, save_results
-    use Stiffness, only: calc_kl, calc_kc
-    use Rotation, only: calc_rot_mat
-    use Displacements, only: calc_dc
-    use Loads, only: calc_fc
-    use CalcReactions, only: calc_reactions, calc_el_reactions
-    use Efforts, only: calc_efforts
+    use Stiffness, only: calc_EKl, calc_Kg
+    use Rotation, only: calc_R
+    use Displacements, only: calc_Dg
+    use Loads, only: calc_Fg
+    use CalcReactions, only: calc_Rg, calc_ERl
+    use Efforts, only: calc_EEl
 
     implicit none
 
@@ -32,14 +32,14 @@ program main
     ! =============================================================================================
     ! Calculation
     ! =============================================================================================
-    call calc_kl
-    call calc_rot_mat
-    call calc_kc
-    call calc_fc
-    call calc_dc
-    call calc_reactions
-    call calc_el_reactions
-    call calc_efforts
+    call calc_EKl
+    call calc_R
+    call calc_Kg
+    call calc_Fg
+    call calc_Dg
+    call calc_Rg
+    call calc_ERl
+    call calc_EEl
 
     ! =============================================================================================
     ! Show and save values
