@@ -120,12 +120,12 @@ contains
         ! Aux *************************************************************************************
         integer :: element  ! index
 
-        allocate(kc(nno*ndofn, nno*ndofn))
+        allocate(Kg(nno*ndofn, nno*ndofn))
 
-        kc = 0d0
+        Kg = 0d0
 
         do element = 1, nel
-            call add_k(kc, element)
+            call add_k(Kg, element)
         end do
     end subroutine
 
@@ -138,15 +138,15 @@ contains
         real(real64), allocatable, intent(inout) :: K(:, :)  ! Global stiffness global
 
         ! Auxiliaries *****************************************************************************
-        real(real64), allocatable :: kg(:, :)  ! Stiffness matrix
+        real(real64), allocatable :: klg(:, :)  ! Stiffness matrix
         integer :: si, ei  ! indices position of start node
         integer :: sj, ej  ! indices position of start node
 
         ! =========================================================================================
         ! Calculates
         ! =========================================================================================
-        kg = kl(id, :, :)
-        kg = matmul(matmul(transpose(rot_mat(id, :, :)), kg), rot_mat(id, :, :))
+        klg = kl(id, :, :)
+        klg = matmul(matmul(transpose(R(id, :, :)), klg), R(id, :, :))
 
         si = (ndofn * (bars(id, 3) - 1)) + 1  ! Start index of initial node
         ei = si + ndofn - 1  ! End index of initial node
@@ -155,10 +155,10 @@ contains
         ej = sj + ndofn - 1  ! End index of end node
 
 
-        K(si:ei, si:ei) = K(si:ei, si:ei) + kg(:3, :3)  ! k_ii
-        K(si:ei, sj:ej) = K(si:ei, sj:ej) + kg(:3, 4:)  ! k_ij
-        K(sj:ej, si:ei) = K(sj:ej, si:ei) + kg(4:, :3)  ! k_ji
-        K(sj:ej, sj:ej) = K(sj:ej, sj:ej) + kg(4:, 4:)  ! k_jj
+        K(si:ei, si:ei) = K(si:ei, si:ei) + klg(:3, :3)  ! k_ii
+        K(si:ei, sj:ej) = K(si:ei, sj:ej) + klg(:3, 4:)  ! k_ij
+        K(sj:ej, si:ei) = K(sj:ej, si:ei) + klg(4:, :3)  ! k_ji
+        K(sj:ej, sj:ej) = K(sj:ej, sj:ej) + klg(4:, 4:)  ! k_jj
     end subroutine add_k
 
     pure function ka(x) result(y)

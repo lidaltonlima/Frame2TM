@@ -19,7 +19,7 @@ contains
         ! =========================================================================================
         ! Calculation
         ! =========================================================================================
-        D_aux = dc
+        D_aux = Dg
         do i =1, nccdesl
             do dir = 1, ndofn
                 if (itydisp(i, dir)) then
@@ -33,10 +33,10 @@ contains
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
 
                 if (itydisp(i, dir)) then
-                    reactions(i_dir) = reactions(i_dir) - fc(i_dir)
+                    Rg(i_dir) = Rg(i_dir) - Fg(i_dir)
 
                     do j = 1, dim
-                        reactions(i_dir) = reactions(i_dir) + kc(i_dir, j) * D_aux(j)
+                        Rg(i_dir) = Rg(i_dir) + Kg(i_dir, j) * D_aux(j)
                     end do
                 end if
             end do
@@ -52,8 +52,8 @@ contains
         integer :: i
         integer :: si, ei
         integer :: sf, ef
-        real(real64) :: d_e(el_dim)
-        real(real64) :: d_el(el_dim)
+        real(real64) :: d_e(E_dim)
+        real(real64) :: d_el(E_dim)
 
 
         do i = 1, nel
@@ -63,11 +63,11 @@ contains
             sf = (ndofn * (bars(i, 4) - 1)) + 1
             ef = sf + ndofn - 1
 
-            d_e(:ndofn) = dc(si:ei)
-            d_e(ndofn+1:) = dc(sf:ef)
+            d_e(:ndofn) = Dg(si:ei)
+            d_e(ndofn+1:) = Dg(sf:ef)
 
-            d_el = matmul(rot_mat(i, :, :), d_e)
-            el_reactions(i, :) = matmul(kl(i, :, :), d_el)
+            d_el = matmul(R(i, :, :), d_e)
+            ERl(i, :) = matmul(kl(i, :, :), d_el)
         end do
     end subroutine calc_el_reactions
 end module CalcReactions

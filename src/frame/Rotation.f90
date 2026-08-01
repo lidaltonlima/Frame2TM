@@ -26,7 +26,7 @@ contains
         ! =========================================================================================
         ! Calculation
         ! =========================================================================================
-        rot_mat = 0d0
+        R = 0d0
         do id = 1, nel
             e_vec = 0d0
             e_vec = [ &
@@ -53,11 +53,11 @@ contains
 
             y_vec = cross(z_vec, x_vec)
 
-            rot_mat(id, 1, :3) = x_vec
-            rot_mat(id, 2, :3) = y_vec
-            rot_mat(id, 3, :3) = z_vec
+            R(id, 1, :3) = x_vec
+            R(id, 2, :3) = y_vec
+            R(id, 3, :3) = z_vec
 
-            rot_mat(id, 4:, 4:) = rot_mat(id, :3, :3)
+            R(id, 4:, 4:) = R(id, :3, :3)
         end do
     end subroutine calc_rot_mat
 end module Rotation

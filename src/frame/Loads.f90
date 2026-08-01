@@ -23,11 +23,11 @@ contains
         ! Allocation
         allocate(Dp(nno*ndofn))
 
-        fc = 0d0
+        Fg = 0d0
         do i = 1, nnc
             do dir = 1, ndofn
                 i_dir = (ndofn * (nnoc(i) - 1)) + dir
-                fc(i_dir) = fc(i_dir) + ccno(i, dir)
+                Fg(i_dir) = Fg(i_dir) + ccno(i, dir)
             end do
         end do
 
@@ -42,6 +42,6 @@ contains
             end do
         end do
 
-        fc = fc - matmul(kc, Dp)
+        Fg = Fg - matmul(Kg, Dp)
     end subroutine calc_fc
 end module Loads

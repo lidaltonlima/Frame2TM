@@ -31,8 +31,8 @@ contains
         allocate(F_aux(dim))
 
         ! Start values
-        K_aux = kc
-        F_aux = fc
+        K_aux = Kg
+        F_aux = Fg
 
         ! =========================================================================================
         ! Calculation
@@ -52,8 +52,8 @@ contains
         end do
 
         ! Solution the system *********************************************************************
-        dc = F_aux
-        call dposv('U', dim, 1, K_Aux, dim, dc, dim, info)
+        Dg = F_aux
+        call dposv('U', dim, 1, K_Aux, dim, Dg, dim, info)
 
         if (info /= 0) error stop 'DPOSV - calc_D - Displacements: solution system.'
 
@@ -63,7 +63,7 @@ contains
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
 
                 if (itydisp(i, dir)) then
-                    dc(i_dir) = disp(i, dir)
+                    Dg(i_dir) = disp(i, dir)
                 end if
             end do
         end do

@@ -19,15 +19,15 @@ program main
     call get_structure_data
 
     dim = nno * ndofn
-    el_dim = 2 * ndofn
+    E_dim = 2 * ndofn
 
-    allocate(dc(dim))
-    allocate(fc(dim))
-    allocate(reactions(dim))
-    allocate(el_reactions(nel, el_dim))
-    allocate(eff(nel, el_dim))
-    allocate(rot_mat(nel, el_dim, el_dim))
-    allocate(kl(nel, el_dim, el_dim))
+    allocate(Dg(dim))
+    allocate(Fg(dim))
+    allocate(Rg(dim))
+    allocate(ERl(nel, E_dim))
+    allocate(EEl(nel, E_dim))
+    allocate(R(nel, E_dim, E_dim))
+    allocate(kl(nel, E_dim, E_dim))
 
     ! =============================================================================================
     ! Calculation

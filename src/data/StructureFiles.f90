@@ -431,10 +431,10 @@ contains
             write(file_unit, '(1A9, 1I4)') 'Element: ', id
             do i = 1, 2 * ndofn
                 do j = 1, 2 * ndofn
-                    if (abs(rot_mat(id, i, j)) < disp_tol) then
+                    if (abs(R(id, i, j)) < disp_tol) then
                         write(file_unit, '(F7.2)', advance='no') 0.0d0
                     else
-                        write(file_unit, '(F7.2)', advance='no') rot_mat(id, i, j)
+                        write(file_unit, '(F7.2)', advance='no') R(id, i, j)
                     end if
                 end do
                 write(file_unit, *)
@@ -454,10 +454,10 @@ contains
             write(file_unit, '(1I7)', advance='no') id
 
             do j = 1, 2*ndofn
-                if (abs(El_reactions(id, j)) < force_tol) then
+                if (abs(ERl(id, j)) < force_tol) then
                     write(file_unit, '(*(ES15.4))', advance='no') 0.0d0
                 else
-                    write(file_unit, '(*(ES15.4))', advance='no') El_reactions(id, j)
+                    write(file_unit, '(*(ES15.4))', advance='no') ERl(id, j)
                 end if
             end do
             write(file_unit, *)
@@ -477,10 +477,10 @@ contains
             write(file_unit, '(1I7)', advance='no') id
 
             do j = 1, 2*ndofn
-                if (abs(Eff(id, j)) < force_tol) then
+                if (abs(EEl(id, j)) < force_tol) then
                     write(file_unit, '(*(ES15.4))', advance='no') 0.0d0
                 else
-                    write(file_unit, '(*(ES15.4))', advance='no') Eff(id, j)
+                    write(file_unit, '(*(ES15.4))', advance='no') EEl(id, j)
                 end if
             end do
             write(file_unit, *)
@@ -496,10 +496,10 @@ contains
         write(file_unit, *)
         do i = 1, nno*ndofn
             do j = 1, nno*ndofn
-                if (abs(kc(i, j)) < disp_tol) then
+                if (abs(Kg(i, j)) < disp_tol) then
                     write(file_unit, '(ES10.2)', advance='no') 0.0d0
                 else
-                    write(file_unit, '(ES10.2)', advance='no') kc(i, j)
+                    write(file_unit, '(ES10.2)', advance='no') Kg(i, j)
                 end if
             end do
             write(file_unit, *)
@@ -514,10 +514,10 @@ contains
         end do
         write(file_unit, *)
         do i = 1, nno*ndofn
-            if (abs(fc(i)) < disp_tol) then
+            if (abs(Fg(i)) < disp_tol) then
                 write(file_unit, '(ES10.2)', advance='no') 0.0d0
             else
-                write(file_unit, '(ES10.2)', advance='no') fc(i)
+                write(file_unit, '(ES10.2)', advance='no') Fg(i)
             end if
         end do
         write(file_unit, *)
@@ -537,10 +537,10 @@ contains
 
             do dir = 1, ndofn
                 i_dir = (ndofn * (i - 1)) + dir
-                if (abs(dc(i_dir)) < disp_tol) then
+                if (abs(Dg(i_dir)) < disp_tol) then
                     write(file_unit, '(ES13.4)', advance='no') 0.0d0
                 else
-                    write(file_unit, '(ES13.4)', advance='no') dc(i_dir)
+                    write(file_unit, '(ES13.4)', advance='no') Dg(i_dir)
                 end if
             end do
             write(file_unit, *)
@@ -561,10 +561,10 @@ contains
             do dir = 1, ndofn
                 i_dir = (ndofn * (nnr(i) - 1)) + dir
 
-                if (abs(reactions(i_dir)) < force_tol) then
+                if (abs(Rg(i_dir)) < force_tol) then
                     write(file_unit, '(ES13.4)', advance='no') 0.0d0
                 else
-                    write(file_unit, '(ES13.4)', advance='no') reactions(i_dir)
+                    write(file_unit, '(ES13.4)', advance='no') Rg(i_dir)
                 end if
             end do
             write(file_unit, *)

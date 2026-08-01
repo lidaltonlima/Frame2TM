@@ -35,15 +35,15 @@ module StructureData
 
     ! Calculate data ******************************************************************************
     real(real64), allocatable :: kl(:, :, :)  ! stiffness matrix kl(element_id, i, j)
-    real(real64), allocatable :: rot_mat(:, :, :)  ! matrix of rotation
-    real(real64), allocatable :: kc(:, :)  ! global stiffness global
-    real(real64), allocatable :: fc(:)  ! vector of loads
-    real(real64), allocatable :: dc(:)  ! displacements
-    real(real64), allocatable :: reactions(:)  ! reactions
-    real(real64), allocatable :: el_reactions(:, :)  ! elements reactions
-    real(real64), allocatable :: eff(:, :)  ! elements efforts
+    real(real64), allocatable :: R(:, :, :)  ! matrix of rotation
+    real(real64), allocatable :: Kg(:, :)  ! global stiffness global
+    real(real64), allocatable :: Fg(:)  ! global vector of loads
+    real(real64), allocatable :: Dg(:)  ! global displacements
+    real(real64), allocatable :: Rg(:)  ! reactions
+    real(real64), allocatable :: ERl(:, :)  ! elements reactions
+    real(real64), allocatable :: EEl(:, :)  ! elements efforts
 
     ! Aux *****************************************************************************************
     integer :: dim  ! dimension of matrices and vectors
-    integer :: el_dim  ! dimension of matrices and vectors
+    integer :: E_dim  ! dimension of matrices and vectors
 end module StructureData
