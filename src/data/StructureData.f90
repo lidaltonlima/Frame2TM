@@ -35,7 +35,6 @@ module StructureData
 
     ! Calculate data ******************************************************************************
     real(real64), allocatable :: EKl(:, :, :)  ! stiffness matrix kl(element_id, i, j)
-    real(real64), allocatable :: R(:, :, :)  ! matrix of rotation
     real(real64), allocatable :: Kg(:, :)  ! global stiffness global
     real(real64), allocatable :: Fg(:)  ! global vector of loads
     real(real64), allocatable :: Dg(:)  ! global displacements

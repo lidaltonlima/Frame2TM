@@ -4,6 +4,7 @@ module Stiffness
     use StructureData
     use GQint, only: intGQ
     use LinearAlgebra, only: inv, LagPol
+    use Rotation, only: R
 
     implicit none
     private
@@ -139,14 +140,16 @@ contains
 
         ! Auxiliaries *****************************************************************************
         real(real64), allocatable :: EKg(:, :)  ! element stiffness matrix in global system
+        real(real64) :: Rm(E_dim, E_dim)
         integer :: si, ei  ! start and end index in initial node
         integer :: sj, ej  ! start and end index in end node
 
         ! =========================================================================================
         ! Calculates
         ! =========================================================================================
+        Rm = R(id)
         EKg = EKl(id, :, :)
-        EKg = matmul(matmul(transpose(R(id, :, :)), EKg), R(id, :, :))
+        EKg = matmul(matmul(transpose(Rm), EKg), Rm)
 
         si = (ndofn * (bars(id, 3) - 1)) + 1  ! Start index of initial node
         ei = si + ndofn - 1  ! End index of initial node

@@ -2,6 +2,7 @@ module CalcReactions
     use iso_fortran_env, only: real64
 
     use StructureData
+    use Rotation, only: R
 
     implicit none
     private
@@ -66,7 +67,7 @@ contains
             EDg(:ndofn) = Dg(si:ei)
             EDg(ndofn+1:) = Dg(sf:ef)
 
-            EDl = matmul(R(i, :, :), EDg)
+            EDl = matmul(R(i), EDg)
             ERl(i, :) = matmul(EKl(i, :, :), EDl)
         end do
     end subroutine calc_ERl
