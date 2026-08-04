@@ -3,7 +3,7 @@ module Stiffness
 
     use StructureData, only: nsa, theory, materials, bars, sections, nodes, nel, nno, ndofn, Kg, E_dim
     use GQint, only: intGQ
-    use LinearAlgebra, only: inv, LagPol
+    use LinearAlgebra, only: inv_special, LagPol
     use Rotation, only: R
 
     implicit none
@@ -101,9 +101,9 @@ contains
         AFF(3, 2) = intGQ(0d0, L, a65, 4)
         AFF(3, 3) = intGQ(0d0, L, a66, 4)
 
-        fIi = inv(AII)
-        fFf = inv(AFF)
-        fIf = matmul(-inv(EII), fFf)
+        fIi = inv_special(AII)
+        fFf = inv_special(AFF)
+        fIf = matmul(-inv_special(EII), fFf)
         fFi = matmul(-EII, fIi)
 
         EKl(:3, :3) = fIi

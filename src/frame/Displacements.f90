@@ -55,7 +55,7 @@ contains
         Dg = F_aux
         call dposv('U', dim, 1, K_Aux, dim, Dg, dim, info)
 
-        if (info /= 0) error stop 'DPOSV - calc_D - Displacements: solution system.'
+        if (info /= 0) error stop 'DPOSV - calc_Dg - Displacements: solution system.'
 
         ! Sum the prescribed displacement *********************************************************
         do i = 1, nccdesl

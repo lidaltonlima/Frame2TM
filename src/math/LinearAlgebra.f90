@@ -2,7 +2,7 @@ module LinearAlgebra
     use iso_fortran_env, only: real64
     implicit none
     private
-    public :: cross, inv, LagPol
+    public :: cross, inv, LagPol, inv_special
 
 contains
     pure function cross(a, b) result(c)
@@ -23,6 +23,20 @@ contains
         c(2) = (a(3) * b(1)) - (a(1) * b(3))
         c(3) = (a(1) * b(2)) - (a(2) * b(1))
     end function cross
+
+    pure real(real64) function det_2by2(mat)
+        ! Calculates the determinant of 2x2 matrix
+        ! =========================================================================================
+        ! Vars statement
+        ! =========================================================================================
+        ! I/O *************************************************************************************
+        real(real64), intent(in) :: mat(2, 2)
+
+        ! =========================================================================================
+        ! Calculation
+        ! =========================================================================================
+        det_2by2 = (mat(1, 1) * mat(2, 2)) - (mat(1, 2) * mat(2, 1))
+    end function
 
     function inv(mat) result(mat_inv)
         ! Calculates the inverse of matrix
@@ -69,6 +83,51 @@ contains
         call dgetri(dim, mat_inv, dim, ipiv, work, dim, info)
         if (info /= 0) error stop 'DGETRI failed while inverting matrix in inv'
     end function inv
+
+    pure function inv_special(mat)
+        ! Calculates the inverse of special matrix (matrix A)
+        ! =========================================================================================
+        ! Vars statement
+        ! =========================================================================================
+        ! I/O *************************************************************************************
+        real(real64), intent(in) :: mat(3, 3)
+
+        ! Aux *************************************************************************************
+        real(real64) :: work_mat(2, 2)
+        real(real64) :: inv_special(3, 3)
+        real(real64) :: det
+        real(real64) :: temp_real
+
+        ! =========================================================================================
+        ! Calculation
+        ! =========================================================================================
+        ! Initialization **************************************************************************
+        inv_special = 0d0
+
+        ! Process *********************************************************************************
+        ! Invert the apart element
+        inv_special(1, 1) = 1 / mat(1, 1)
+        inv_special(2, 2) = det
+
+        ! Invert the 2x2 matrix using single method
+        work_mat = mat(2:3, 2:3)
+        det = det_2by2(work_mat)
+
+        ! 1st step - Divide elements by determinant
+        work_mat = work_mat / det
+
+        ! 2nd step - Exchange the elements of principal diagonal
+        temp_real = work_mat(1, 1)
+        work_mat(1, 1) = work_mat(2, 2)
+        work_mat(2, 2) = temp_real
+
+        ! 3rd step - Invert the signal of secondary diagonal terms
+        work_mat(1, 2) = -work_mat(1, 2)
+        work_mat(2, 1) = -work_mat(2, 1)
+
+        ! Put da work matrix in inv matrix
+        inv_special(2:3, 2:3) = work_mat
+    end function
 
     pure function LagPol(px, py, x) result(y)
         ! Calculates the value of function in the x point using Lagrangian Polynomial
